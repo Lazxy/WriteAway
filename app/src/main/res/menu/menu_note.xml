@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_note_revoke"
+        android:title="回溯"
+        android:icon="@drawable/btn_note_revoke_24dp_white"
+        app:showAsAction="always"
+        />
+    <item
+        android:id="@+id/menu_note_clear"
+        android:title="清空"
+        android:icon="@drawable/btn_note_clear_24dp_white"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/menu_note_save"
+        android:title="保存"
+        android:icon="@drawable/btn_note_save_24dp_white"
+        app:showAsAction="always"
+        />
+</menu>

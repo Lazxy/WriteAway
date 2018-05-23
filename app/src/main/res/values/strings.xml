@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">StNote</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="import_file">导入</string>
+    <string name="export_file">导出</string>
+    <string name="about_app">关于APP</string>
+    <string name="alert_permission_needed">为了能顺利完成导出操作，需要允许权限申请。请点击"导出"，重试</string>
+
+    <string name="action_settings">Settings</string>
+
+    <!--Note-->
+    <string name="no_title">未命名</string>
+    <string name="note_toolbar_title">流沙</string>
+    <string name="planning_toolbar_title">绿洲</string>
+
+    <!--Planning-->
+    <string name="planning_not_too_long">在这里写下一个小小目标（25个字已经很多啦）</string>
+    <string name="planning_delete_prompt">要删掉它吗？</string>
+    <string name="planning_void_prompt">这里的内容不能为空~</string>
+</resources>

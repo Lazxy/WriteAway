@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!--自定义EditText-->
+    <declare-styleable name="notepad">
+        <attr name="lineColor" format="color"/>
+        <attr name="title" format="string"/>
+    </declare-styleable>
+
+    <integer name="planning_length">25</integer>
+</resources>
