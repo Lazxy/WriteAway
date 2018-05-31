@@ -7,7 +7,7 @@
     android:padding="16dp">
 
     <LinearLayout
-        android:id="@+id/nav_item_planning_count"
+        android:id="@+id/layoutPlanningCount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:foreground="?attr/selectableItemBackground"
@@ -22,7 +22,7 @@
             android:text="@string/planning_toolbar_title" />
 
         <TextView
-            android:id="@+id/tv_nav_planning_count"
+            android:id="@+id/tvPlanningCount"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginLeft="8dp"
@@ -33,7 +33,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/nav_item_note_count"
+        android:id="@+id/layoutNoteCount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:foreground="?attr/selectableItemBackground"
@@ -48,7 +48,7 @@
             android:text="@string/note_toolbar_title" />
 
         <TextView
-            android:id="@+id/tv_nav_note_count"
+            android:id="@+id/tvNoteCount"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginLeft="8dp"
@@ -81,7 +81,7 @@
         <!--android:text="@string/import_file"-->
         <!--/>-->
         <TextView
-            android:id="@+id/tv_nav_export_note"
+            android:id="@+id/tvExportNotes"
             style="@style/NavigationMenuText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -89,7 +89,7 @@
             android:text="@string/export_file" />
 
         <TextView
-            android:id="@+id/tv_nav_about_app"
+            android:id="@+id/tvAboutApp"
             style="@style/NavigationMenuText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
