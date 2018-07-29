@@ -1,5 +1,6 @@
 package com.work.lazxy.writeaway.ui.filter;
 
+import android.text.Html;
 import android.text.InputFilter;
 import android.text.Spanned;
 
@@ -9,7 +10,7 @@ import android.text.Spanned;
  */
 
 public class LineBreakInputFilter implements InputFilter {
-    public static final String INDENT = "    ";
+    public static final String INDENT = "\u3000\u3000";
     /**
      * 过滤输入，在字符串替换或者插入时被调用
      * @param source 插入或将替换的字符串（如用a替换b,则source是a,如果是删除操作,则source是""）

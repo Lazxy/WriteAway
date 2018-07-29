@@ -29,6 +29,8 @@
             android:screenOrientation="portrait" />
 
         <service android:name=".service.ExportNoteService" />
+
+        <service android:name=".service.ImportNoteService" />
     </application>
 
 </manifest>

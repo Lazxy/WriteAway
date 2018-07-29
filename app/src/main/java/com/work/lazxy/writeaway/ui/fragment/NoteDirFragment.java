@@ -2,9 +2,7 @@ package com.work.lazxy.writeaway.ui.fragment;
 
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
-import android.view.animation.LayoutAnimationController;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.work.lazxy.writeaway.R;
@@ -85,22 +83,7 @@ public class NoteDirFragment extends BaseFrameListFragment<NoteDirectoryPresente
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onChangeNote(EventChangeNote event) {
-        if (!event.mIsNewNote) {
-            //如果不是新的笔记，就先删除掉原来的内容，然后将其添加到最前面
-            List<NoteEntity> notes = mAdapter.getData();
-            for (int i = 0; i < notes.size(); i++) {
-                if (notes.get(i).getFilePath().equals(event.mNote.getFilePath())) {
-                    // note.setLastEditTime(event.mNote.getLastEditTime());
-                    // note.setPreview(event.mNote.getPreview());
-                    // note.setTitle(event.mNote.getTitle());
-                    notes.remove(i);
-                    mAdapter.notifyDataSetChanged();
-                    break;
-                }
-            }
-        }
-        mAdapter.getData().add(0, event.mNote);
-        mAdapter.notifyDataSetChanged();
+        requestData(event.mShouldRefresh);
     }
 
     @Override

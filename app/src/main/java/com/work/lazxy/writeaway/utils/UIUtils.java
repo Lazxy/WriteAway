@@ -18,67 +18,66 @@ import java.lang.reflect.Method;
  */
 
 public class UIUtils {
-//    public static ProgressDialog showTransparentProgressDialog(Context context){
-//        ProgressDialog dialog=new ProgressDialog(context);
-//        Window window=dialog.getWindow();
-//        WindowManager.LayoutParams params=window.getAttributes();
-//        params.alpha=0.5f;
-//        params.dimAmount=0.7f;
-//        window.setAttributes(params);
-//        dialog.show();
-//        return dialog;
-//    }
     public static void showSimpleAlertDialog(Context context, String title, String message, String positiveSelection,
                                              String negativeSelection, DialogInterface.OnClickListener positiveListener,
-                                             DialogInterface.OnClickListener negativeListener){
-        AlertDialog.Builder builder=new AlertDialog.Builder(context);
+                                             DialogInterface.OnClickListener negativeListener) {
+        showSimpleAlertDialog(context, true, title, message, positiveSelection, negativeSelection, positiveListener, negativeListener);
+    }
+
+    public static void showSimpleAlertDialog(Context context, boolean cancelable, String title, String message, String positiveSelection,
+                                             String negativeSelection, DialogInterface.OnClickListener positiveListener,
+                                             DialogInterface.OnClickListener negativeListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(title)
                 .setMessage(message)
-                .setPositiveButton(positiveSelection,positiveListener)
-                .setNegativeButton(negativeSelection,negativeListener)
+                .setPositiveButton(positiveSelection, positiveListener)
+                .setNegativeButton(negativeSelection, negativeListener)
+                .setCancelable(cancelable)
                 .create().show();
     }
-    public static void setIconEnable(Menu menu, boolean enable)
-    {
-        try
-        {
+
+    public static void setIconEnable(Menu menu, boolean enable) {
+        try {
             Class<?> clazz = Class.forName("android.support.v7.view.menu.MenuBuilder");
             Method m = clazz.getDeclaredMethod("setOptionalIconsVisible", boolean.class);
             m.setAccessible(true);
             //传入参数
             m.invoke(menu, enable);
 
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    public static int measureTextWidth(String text, int textSize){
-        Paint fontPaint=new Paint();
+
+    public static int measureTextWidth(String text, int textSize) {
+        Paint fontPaint = new Paint();
         fontPaint.setTextSize(textSize);
-        Rect rect=new Rect();
-        fontPaint.getTextBounds(text,0,text.length(),rect);
+        Rect rect = new Rect();
+        fontPaint.getTextBounds(text, 0, text.length(), rect);
         return rect.width();
     }
+
     /**
      * 设置输入法隐藏
+     *
      * @param context
      */
-    public static void hideInputMethod(Context context,View view) {
+    public static void hideInputMethod(Context context, View view) {
         //根据当前状态自动弹出或隐藏键盘
         InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        if(inputManager.hideSoftInputFromWindow(view.getWindowToken(),0));
+        if (inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0)) ;
     }
 
     /**
      * 设置输入法弹出
+     *
      * @param context
      */
-    public static void showInputMethod(Context context,View view) {
+    public static void showInputMethod(Context context, View view) {
         //根据当前状态自动弹出或隐藏键盘
         InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
 //        if(!inputManager.isActive())
-        inputManager.showSoftInput(view,0);
+        inputManager.showSoftInput(view, 0);
     }
 
 //    /**

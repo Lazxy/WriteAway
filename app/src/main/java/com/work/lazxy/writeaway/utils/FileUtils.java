@@ -11,12 +11,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
 
+import static com.work.lazxy.writeaway.ui.filter.LineBreakInputFilter.INDENT;
+
 /**
  * Created by Lazxy on 2017/5/26.
  */
 
 public class FileUtils {
     public static final String DEFAULT_COMPRESS_FOLDER = Environment.getExternalStorageDirectory().getPath() + "/WriteAway/output/";
+    public static final String DEFAULT_TEMP_FOLDER = Environment.getExternalStorageDirectory().getPath() + "/WriteAway/temp/";
     public static final String TYPE_TEXT = ".txt";
     public static final String TYPE_ZIP = ".zip";
     public static String createFileWithTime(String rootPath) {
@@ -36,7 +39,7 @@ public class FileUtils {
         File file = new File(filePath);
         if (!file.exists()) {
 //            file.createNewFile();
-            return "    ";
+            return INDENT;
         }
         BufferedReader reader = null;
         try {
@@ -44,7 +47,7 @@ public class FileUtils {
             StringBuffer buffer = new StringBuffer();
             String line;
             while ((line = reader.readLine()) != null) {
-                buffer.append(line + "\n");
+                buffer.append(line).append("\n");
             }
             return buffer.delete(buffer.length()-1,buffer.length()).toString();//这里要除去最后一个换行符
         } finally {

@@ -23,7 +23,7 @@ public class StringUtils {
 
     public static String getPreview(String content){
         if(content.length()> Constant.Common.PREVIEW_MAX_LENGTH)
-            return content.substring(0,Constant.Common.PREVIEW_MAX_LENGTH)+"...";
+            return content.substring(0, Constant.Common.PREVIEW_MAX_LENGTH);
         else
             return content;
     }

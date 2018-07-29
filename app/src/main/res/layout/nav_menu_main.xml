@@ -10,7 +10,6 @@
         android:id="@+id/layoutPlanningCount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:foreground="?attr/selectableItemBackground"
         android:orientation="horizontal">
 
         <TextView
@@ -36,7 +35,6 @@
         android:id="@+id/layoutNoteCount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:foreground="?attr/selectableItemBackground"
         android:orientation="horizontal">
 
         <TextView
@@ -72,14 +70,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <!--<TextView-->
-        <!--android:id="@+id/tv_nav_import_note"-->
-        <!--style="@style/NavigationMenuText"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:drawableLeft="@drawable/menu_import_24dp_black"-->
-        <!--android:text="@string/import_file"-->
-        <!--/>-->
+
+        <TextView
+            android:id="@+id/tvImportNotes"
+            style="@style/NavigationMenuText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/menu_import_24dp_black"
+            android:text="@string/import_file" />
+
         <TextView
             android:id="@+id/tvExportNotes"
             style="@style/NavigationMenuText"

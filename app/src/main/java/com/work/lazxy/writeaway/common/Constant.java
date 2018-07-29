@@ -6,13 +6,17 @@ package com.work.lazxy.writeaway.common;
 
 public interface Constant {
     interface Common {
-        int PREVIEW_MAX_LENGTH = 30;
+        int PREVIEW_MAX_LENGTH = 100;
 
         int REQUEST_CODE_NEW_NOTE = 0x16;
 
         int REQUEST_CODE_UPDATE_NOTE = 0x32;
+
+        int REQUET_CODE_IMPORT_NOTE = 0x64;
     }
     interface Extra{
         String EXTRA_NOTE = "extraNote";
+
+        String EXTRA_IMPORT_PATH = "paths";
     }
 }

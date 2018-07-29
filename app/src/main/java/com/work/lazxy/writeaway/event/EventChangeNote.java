@@ -7,11 +7,11 @@ import com.work.lazxy.writeaway.entity.NoteEntity;
  */
 
 public class EventChangeNote {
-    public boolean mIsNewNote;
+    public boolean mShouldRefresh;
     public NoteEntity mNote;
 
-    public EventChangeNote(boolean isNewNote, NoteEntity note) {
-        mIsNewNote = isNewNote;
+    public EventChangeNote(boolean shouldRefresh, NoteEntity note) {
+        mShouldRefresh = shouldRefresh;
         mNote = note;
     }
 }

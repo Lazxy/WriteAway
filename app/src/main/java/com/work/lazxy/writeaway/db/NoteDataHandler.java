@@ -43,16 +43,10 @@ public class NoteDataHandler {
      * @param editTime 日记的最后编辑时间，以格林威治时间表示
      */
     public boolean saveData(String title, String filePath, String preview, long editTime) {
-        Cursor cursor;
         mDatabase.beginTransaction();
         try {
             //当该条数据已存在时，删除该条数据
             mDatabase.delete(DataOpenHelper.NOTE_TABLE_NAME,"path=?",new String[]{filePath});
-//                ContentValues values = new ContentValues();
-//                values.put("title", title);
-//                values.put("preview", preview);
-//                values.put("edit_time", editTime);
-//                mDatabase.update(DataOpenHelper.NOTE_TABLE_NAME, values, "path=?", new String[]{filePath});
             //然后将数据添加到表的末端
             ContentValues values = new ContentValues();
             values.put("title", title);

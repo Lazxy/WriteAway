@@ -2,7 +2,7 @@ package com.work.lazxy.writeaway.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.Service;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -12,6 +12,7 @@ import com.work.lazxy.writeaway.R;
 import com.work.lazxy.writeaway.db.NoteDataHandler;
 import com.work.lazxy.writeaway.entity.NoteEntity;
 import com.work.lazxy.writeaway.event.EventCompressComplete;
+import com.work.lazxy.writeaway.ui.activity.MainActivity;
 import com.work.lazxy.writeaway.utils.FileUtils;
 import com.work.lazxy.writeaway.utils.ZipUtils;
 
@@ -30,15 +31,8 @@ import java.util.Map;
  * Created by Lazxy on 2017/5/30.
  */
 
-public class ExportNoteService extends Service {
-    private Notification.Builder mBuilder;
-    private final int NOTIFICATION_ID = 0x128;
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
+public class ExportNoteService extends BaseForegroundService<EventCompressComplete> {
+    private final int EXPORT_NOTIFICATION_ID = 0x10;
 
     @Override
     public void onCreate() {
@@ -51,7 +45,7 @@ public class ExportNoteService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startForeground(NOTIFICATION_ID, mBuilder.build());
+        startForeground(EXPORT_NOTIFICATION_ID, mBuilder.build());
         /*这里开始进行压缩文件的异步操作*/
         new Thread(mRunnable).start();
         return super.onStartCommand(intent, flags, startId);
@@ -64,6 +58,11 @@ public class ExportNoteService extends Service {
         super.onDestroy();
     }
 
+    @Override
+    protected void onActionDone(EventCompressComplete event) {
+
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCompressComplete(EventCompressComplete event) {
         if(event.mIsSuccessful) {
@@ -73,7 +72,7 @@ public class ExportNoteService extends Service {
             }
             mBuilder.setProgress(100, index * 100 / event.mTaskSum, false);
             mBuilder.setContentText(index + " / " + event.mTaskSum);
-            startForeground(NOTIFICATION_ID, mBuilder.build());
+            startForeground(EXPORT_NOTIFICATION_ID, mBuilder.build());
 
             if (index == event.mTaskSum) {
                 stopForeground(true);
@@ -92,8 +91,9 @@ public class ExportNoteService extends Service {
                 .setContentTitle("StNote")
                 .setContentText(msg)
                 .setSmallIcon(R.mipmap.ic_notification_small)
+                .setContentIntent(PendingIntent.getActivity(this, REQUEST_TO_APPLICATION, new Intent(this, MainActivity.class), PendingIntent.FLAG_ONE_SHOT))
                 .build();
-        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, notification);
+        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(EXPORT_NOTIFICATION_ID, notification);
     }
 
     private Runnable mRunnable = new Runnable() {
@@ -105,26 +105,9 @@ public class ExportNoteService extends Service {
                 Map<String,Integer> nameMap = new HashMap<>();//用于防止重名的图
                 Map<String,String> oldNameMap = new HashMap<>();//用来保存原来和现在名字的对应关系，便于后面的恢复命名
                 for (NoteEntity note : notes) {
-                    File file = new File(note.getFilePath());
-                    if (file.exists()) {
-                        String newFileName = TextUtils.isEmpty(note.getTitle())?
-                                getResources().getString(R.string.no_title):note.getTitle();
-                        if(nameMap.containsKey(newFileName)){
-                            //若存在标题重复，则重命名一次
-                            int no = nameMap.get(newFileName);
-                            nameMap.put(newFileName,no+1);//将重名计数+1
-                            newFileName = newFileName+"("+no+")"+".txt";
-                        }else{
-                            nameMap.put(newFileName,1);
-                            newFileName = newFileName+".txt";
-                        }
-                        File newFile = new File(file.getParent()+File.separator+newFileName);
-                        if(oldNameMap.get(newFile.getPath()) == null) {
-                            //这里是为了防止用户自己将标题写为XXX(1)的形式而导致的仍然重名
-                            oldNameMap.put(newFile.getPath(), file.getPath());
-                            file.renameTo(newFile);
-                        }
-                        files.add(newFile);
+                    File noteFile = renameFile(note, nameMap, oldNameMap);
+                    if (noteFile != null) {
+                        files.add(noteFile);
                     }
                 }
                 final int sum = files.size();
@@ -155,4 +138,30 @@ public class ExportNoteService extends Service {
             }
         }
     };
+
+    private File renameFile(NoteEntity note, Map<String, Integer> nameMap, Map<String, String> oldNameMap) {
+        File file = new File(note.getFilePath());
+        if (file.exists()) {
+            String newFileName = TextUtils.isEmpty(note.getTitle()) ?
+                    getResources().getString(R.string.no_title) : note.getTitle();
+            if (nameMap.containsKey(newFileName)) {
+                //若存在标题重复，则重命名一次
+                int no = nameMap.get(newFileName);
+                nameMap.put(newFileName, no + 1);//将重名计数+1
+                newFileName = newFileName + "(" + no + ")" + ".txt";
+            } else {
+                nameMap.put(newFileName, 1);
+                newFileName = newFileName + ".txt";
+            }
+            File newFile = new File(file.getParent() + File.separator + newFileName);
+            if (oldNameMap.get(newFile.getPath()) == null) {
+                //这里是为了防止用户自己将标题写为XXX(1)的形式而导致的仍然重名
+                oldNameMap.put(newFile.getPath(), file.getPath());
+                file.renameTo(newFile);
+            }
+            return newFile;
+        } else {
+            return null;
+        }
+    }
 }

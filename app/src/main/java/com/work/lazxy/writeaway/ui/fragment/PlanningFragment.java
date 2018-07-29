@@ -109,7 +109,7 @@ public class PlanningFragment extends BaseFrameFragment<PlanningPresent,Planning
 
             @Override
             public void onSwipe(final int position) {
-                UIUtils.showSimpleAlertDialog(getActivity(), null, getString(R.string.planning_delete_prompt)
+                UIUtils.showSimpleAlertDialog(getActivity(), false, null, getString(R.string.planning_delete_prompt)
                         , "删除", "取消", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -161,7 +161,6 @@ public class PlanningFragment extends BaseFrameFragment<PlanningPresent,Planning
                     UIUtils.showInputMethod(getActivity(),etNewPlanning);//输入法弹出设置有问题
                     ivAddPlanning.setImageResource(R.drawable.iv_planning_confirm_36dp_green);
                     ivAddPlanning.setBackgroundResource(R.drawable.select_planning_confirm);
-                    //这里对应地还要再添加一个取消按钮
                 }
             }
         });

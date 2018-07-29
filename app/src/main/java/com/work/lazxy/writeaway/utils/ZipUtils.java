@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -81,7 +82,8 @@ public class ZipUtils {
      * @param folderPath 解压缩的目标目录
      * @throws IOException 当解压缩过程出错时抛出
      */
-    public static void upZipFile(File zipFile, String folderPath) throws ZipException, IOException {
+    public static List<String> upZipFile(File zipFile, String folderPath) throws ZipException, IOException {
+        List<String> unZipPaths = new ArrayList<>();
         File desDir = new File(folderPath);
         if (!desDir.exists()) {
             desDir.mkdirs();
@@ -91,7 +93,6 @@ public class ZipUtils {
             ZipEntry entry = ((ZipEntry) entries.nextElement());
             InputStream in = zf.getInputStream(entry);
             String str = folderPath + File.separator + entry.getName();
-            str = new String(str.getBytes("8859_1"), "GB2312");//压缩文件解码格式转化
             File desFile = new File(str);
             if (!desFile.exists()) {
                 File fileParentDir = desFile.getParentFile();
@@ -108,7 +109,9 @@ public class ZipUtils {
             }
             in.close();
             out.close();
+            unZipPaths.add(desFile.getPath());
         }
+        return unZipPaths;
     }
 
     /**

@@ -23,7 +23,6 @@
             android:textColor="@color/lightBlack"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="代码错误记录"
             />
         <TextView
             android:id="@+id/tv_note_dir_preview"
@@ -32,16 +31,15 @@
             android:layout_marginTop="8dp"
             android:gravity="left"
             android:ellipsize="end"
-            android:maxLines="1"
+            android:maxLines="2"
             android:textColor="@color/text_black"
             android:textSize="14sp"
-            android:text="abcdefghijklmnopqrstuvwxyz"
             />
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp">
+            android:layout_marginTop="8dp">
             <TextView
                 android:id="@+id/tv_note_dir_last_edit"
                 android:layout_width="0dp"
@@ -50,7 +48,6 @@
                 android:gravity="left|center"
                 android:textColor="@color/text_grey"
                 android:textSize="13sp"
-                android:text="3小时前编辑"
                 />
             <ImageView
                 android:id="@+id/iv_note_dir_options"

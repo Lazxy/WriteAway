@@ -4,12 +4,15 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.Snackbar
 import android.support.v4.view.ViewPager
 import android.view.View
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
+import android.util.Log
 import android.view.Menu
+import com.leon.lfilepickerlibrary.LFilePicker
 
 import com.work.lazxy.writeaway.R
 import com.work.lazxy.writeaway.common.Constant
@@ -22,9 +25,11 @@ import com.work.lazxy.writeaway.mvpframe.concrete.main.MainContract
 import com.work.lazxy.writeaway.mvpframe.concrete.main.MainModel
 import com.work.lazxy.writeaway.mvpframe.concrete.main.MainPresenter
 import com.work.lazxy.writeaway.service.ExportNoteService
+import com.work.lazxy.writeaway.service.ImportNoteService
 import com.work.lazxy.writeaway.ui.adapter.MainPagerAdapter
 import com.work.lazxy.writeaway.ui.fragment.NoteDirFragment
 import com.work.lazxy.writeaway.ui.fragment.PlanningFragment
+import com.work.lazxy.writeaway.utils.FileUtils
 import com.work.lazxy.writeaway.utils.PermissionUtils
 
 import org.greenrobot.eventbus.EventBus
@@ -71,6 +76,7 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
         pager.addOnPageChangeListener(this)
         layoutPlanningCount.setOnClickListener(this)
         layoutNoteCount.setOnClickListener(this)
+        tvImportNotes.setOnClickListener(this)
         tvExportNotes.setOnClickListener(this)
         tvAboutApp.setOnClickListener(this)
         fab.setOnClickListener {
@@ -109,6 +115,16 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
         when (id) {
             R.id.layoutPlanningCount -> pager.currentItem = 0
             R.id.layoutNoteCount -> pager.currentItem = 1
+            R.id.tvImportNotes -> {
+                //这里为了不与Drawer的收起动画冲突，改为延时启动，之后考虑在这里直接不收起Drawer
+                Handler().postDelayed({
+                    LFilePicker().withActivity(this).withChooseMode(true)
+                            .withMutilyMode(true)
+                            .withFileFilter(arrayOf(FileUtils.TYPE_TEXT, FileUtils.TYPE_ZIP))
+                            .withRequestCode(Constant.Common.REQUET_CODE_IMPORT_NOTE)
+                            .start()
+                }, 300)
+            }
             R.id.tvExportNotes ->
                 //先检查是否有日记存在
                 if (Integer.parseInt(tvNoteCount.text.toString()) > 0) {
@@ -149,10 +165,17 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == Constant.Common.REQUEST_CODE_NEW_NOTE) {
-                EventBus.getDefault().post(EventChangeNote(true, data?.getSerializableExtra(Constant.Extra.EXTRA_NOTE) as NoteEntity))
-            } else if (requestCode == Constant.Common.REQUEST_CODE_UPDATE_NOTE) {
-                EventBus.getDefault().post(EventChangeNote(false, data?.getSerializableExtra(Constant.Extra.EXTRA_NOTE) as NoteEntity))
+            when (requestCode) {
+                Constant.Common.REQUEST_CODE_NEW_NOTE ->
+                    EventBus.getDefault().post(EventChangeNote(true, data?.getSerializableExtra(Constant.Extra.EXTRA_NOTE) as NoteEntity))
+                Constant.Common.REQUEST_CODE_UPDATE_NOTE ->
+                    EventBus.getDefault().post(EventChangeNote(true, data?.getSerializableExtra(Constant.Extra.EXTRA_NOTE) as NoteEntity))
+                Constant.Common.REQUET_CODE_IMPORT_NOTE -> {
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    val importIntent = Intent(this, ImportNoteService::class.java)
+                    importIntent.putExtra(Constant.Extra.EXTRA_IMPORT_PATH, data?.getStringArrayListExtra(Constant.Extra.EXTRA_IMPORT_PATH))
+                    startService(importIntent)
+                }
             }
         }
     }
