@@ -18,7 +18,7 @@
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
             <android.support.design.widget.CollapsingToolbarLayout
-                android:id="@+id/collapsing_layout_about"
+                android:id="@+id/collapsingLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:collapsedTitleTextAppearance="@style/ToolbarTitleText"
@@ -26,7 +26,7 @@
                 app:expandedTitleMarginEnd="64dp"
                 app:expandedTitleMarginStart="48dp"
                 app:expandedTitleTextAppearance="@style/CollapsingToolbarTitleStyle"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed">
+                app:layout_scrollFlags="scroll|snap|exitUntilCollapsed">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -50,7 +50,7 @@
                         android:textSize="18sp" />
 
                     <TextView
-                        android:id="@+id/tv_about_version"
+                        android:id="@+id/tvVersion"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -60,7 +60,7 @@
                 </LinearLayout>
 
                 <android.support.v7.widget.Toolbar
-                    android:id="@+id/toolbar_about"
+                    android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     app:contentInsetStartWithNavigation="0dp"
@@ -83,7 +83,7 @@
                 android:layout_height="match_parent">
 
                 <ProgressBar
-                    android:id="@+id/progress_about"
+                    android:id="@+id/progressBar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
@@ -91,7 +91,7 @@
                     android:indeterminate="true" />
 
                 <WebView
-                    android:id="@+id/webView_about"
+                    android:id="@+id/webContent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:visibility="gone" />

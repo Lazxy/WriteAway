@@ -47,6 +47,8 @@ public class BaseFrameListFragment<P extends BasePresenter, M extends BaseModel>
         mAdapter.setLoadMoreView(new CustomLoadMore());
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        mRefreshLayout.setColorSchemeColors(getActivity().getResources().getColor(R.color.colorPrimary));
     }
 
     @Override

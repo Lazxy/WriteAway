@@ -6,7 +6,7 @@
     android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar_note"
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
         android:background="@color/colorPrimary"
@@ -47,7 +47,7 @@
                         <requestFocus />
                     </LinearLayout>
                     <EditText
-                        android:id="@+id/et_note_title"
+                        android:id="@+id/etNoteTitle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -64,7 +64,7 @@
                         android:textSize="24sp" />
 
                     <TextView
-                        android:id="@+id/tv_note_edit_time"
+                        android:id="@+id/tvEditTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom"
@@ -84,7 +84,7 @@
                     android:background="@color/dividerBlack" />
 
                 <com.work.lazxy.writeaway.ui.widget.NotePad
-                    android:id="@+id/note_content"
+                    android:id="@+id/padNoteContent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"

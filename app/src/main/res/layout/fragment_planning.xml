@@ -10,19 +10,19 @@
         android:layout_height="wrap_content">
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_planning"
+            android:id="@+id/rvPlanning"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             />
         <RelativeLayout
-            android:id="@+id/layout_planning_edit"
+            android:id="@+id/layoutPlanningEdit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
             android:visibility="gone"
             >
             <EditText
-                android:id="@+id/et_planning_new"
+                android:id="@+id/etNewPlanning"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -38,7 +38,7 @@
                 android:visibility="visible"
                 />
             <ImageView
-                android:id="@+id/iv_planning_cancel_add"
+                android:id="@+id/ivPlanningCancelAdd"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:padding="8dp"
@@ -51,7 +51,7 @@
                 />
         </RelativeLayout>
         <ImageView
-            android:id="@+id/iv_planning_add"
+            android:id="@+id/ivPlanningAdd"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="8dp"
