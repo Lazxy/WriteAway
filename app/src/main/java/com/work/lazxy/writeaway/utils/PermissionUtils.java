@@ -44,10 +44,11 @@ public class PermissionUtils {
     public static void onRequestPermissionResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
         if(requestCode==PERMISSION_REQUEST_CODE&&mListener!=null){
             for(int i=0;i<grantResults.length;i++){
-                if(grantResults[i]== PackageManager.PERMISSION_DENIED)
+                if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
                     mListener.onDenied(permissions[i]);
-                else
-                    mListener.onGranted();
+                } else {
+                    mListener.onGranted(permissions[i]);
+                }
             }
         }
     }
@@ -122,7 +123,7 @@ public class PermissionUtils {
         return Build.VERSION.SDK_INT>=23;
     }
     public interface PermissionListener{
-        public void onGranted();
+        public void onGranted(String permission);
         public void onDenied(String permission);
     }
 }

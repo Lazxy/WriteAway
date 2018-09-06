@@ -9,10 +9,11 @@ import android.support.design.widget.Snackbar
 import android.support.v4.view.ViewPager
 import android.view.View
 import android.support.v4.view.GravityCompat
+import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
-import android.util.Log
 import android.view.Menu
 import com.leon.lfilepickerlibrary.LFilePicker
+import com.leon.lfilepickerlibrary.consts.ExtraConsts
 
 import com.work.lazxy.writeaway.R
 import com.work.lazxy.writeaway.common.Constant
@@ -72,6 +73,11 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
         val toggle = ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawerLayout.addDrawerListener(toggle)
+        drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
+            override fun onDrawerOpened(drawerView: View) {
+                mPresenter.getDataCount()
+            }
+        })
         toggle.syncState()
         pager.addOnPageChangeListener(this)
         layoutPlanningCount.setOnClickListener(this)
@@ -116,28 +122,42 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
             R.id.layoutPlanningCount -> pager.currentItem = 0
             R.id.layoutNoteCount -> pager.currentItem = 1
             R.id.tvImportNotes -> {
-                //这里为了不与Drawer的收起动画冲突，改为延时启动，之后考虑在这里直接不收起Drawer
-                Handler().postDelayed({
-                    LFilePicker().withActivity(this).withChooseMode(true)
-                            .withMutilyMode(true)
-                            .withFileFilter(arrayOf(FileUtils.TYPE_TEXT, FileUtils.TYPE_ZIP))
-                            .withRequestCode(Constant.Common.REQUET_CODE_IMPORT_NOTE)
-                            .start()
-                }, 300)
+                /*这里需要检查一下写入权限*/
+                if (PermissionUtils.requestPermission(this,
+                                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), this)) {
+                    selectFiles()
+                }
             }
             R.id.tvExportNotes ->
                 //先检查是否有日记存在
                 if (Integer.parseInt(tvNoteCount.text.toString()) > 0) {
                     /*这里需要检查一下读入权限*/
                     if (PermissionUtils.requestPermission(this,
-                                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), this)) {
+                                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), this)) {
                         val intent = Intent(this, ExportNoteService::class.java)
                         startService(intent)
                     }
+                } else {
+                    Snackbar.make(fab, "这里还没有文本..", Snackbar.LENGTH_SHORT).show()
                 }
             R.id.tvAboutApp -> openActivity(AboutAppActivity::class.java)
         }
         drawerLayout.closeDrawer(GravityCompat.START)
+    }
+
+    private fun selectFiles() {
+        //这里为了不与Drawer的收起动画冲突，改为延时启动，之后考虑在这里直接不收起Drawer
+        Handler().postDelayed({
+            LFilePicker().withActivity(this)
+                    .withStartPath(FileUtils.DEFAULT_COMPRESS_FOLDER)
+                    .withChooseMode(true)
+                    .withMultiMode(true)
+                    .withFileFilter(arrayOf(FileUtils.TYPE_TEXT, FileUtils.TYPE_ZIP))
+                    .withRequestCode(Constant.Common.REQUET_CODE_IMPORT_NOTE)
+                    .withTheme(R.style.FilePickerTheme)
+                    .withTitle("选择文本/压缩包")
+                    .start()
+        }, 300)
     }
 
     override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
@@ -173,7 +193,7 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
                 Constant.Common.REQUET_CODE_IMPORT_NOTE -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
                     val importIntent = Intent(this, ImportNoteService::class.java)
-                    importIntent.putExtra(Constant.Extra.EXTRA_IMPORT_PATH, data?.getStringArrayListExtra(Constant.Extra.EXTRA_IMPORT_PATH))
+                    importIntent.putExtra(Constant.Extra.EXTRA_IMPORT_PATH, data?.getStringArrayListExtra(ExtraConsts.EXTRA_FILE_PATHS))
                     startService(importIntent)
                 }
             }
@@ -185,13 +205,20 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
         PermissionUtils.onRequestPermissionResult(requestCode, permissions, grantResults)
     }
 
-    override fun onGranted() {
-        val intent = Intent(this, ExportNoteService::class.java)
-        startService(intent)
+    override fun onGranted(permission: String) {
+        if (Manifest.permission.WRITE_EXTERNAL_STORAGE == permission) {
+            val intent = Intent(this, ExportNoteService::class.java)
+            startService(intent)
+        } else {
+            selectFiles()
+        }
     }
 
     override fun onDenied(permission: String) {
-        showShortToast(resources.getString(R.string.alert_permission_needed))
+        Snackbar.make(fab, resources.getString(R.string.alert_permission_needed), Snackbar.LENGTH_LONG)
+                .setAction("重试") {
+                    PermissionUtils.requestPermission(this, arrayOf(permission), this)
+                }.show()
     }
 
     override fun onRequestStart() {

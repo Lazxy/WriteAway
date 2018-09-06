@@ -22,8 +22,8 @@
         <item name="android:gravity">left|center_vertical</item>
         <item name="android:textColor">@color/normalBlack</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:layout_marginTop">16dp</item>
-        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">16dp</item>
     </style>
 
     <style name="TransparentDialog" parent="@style/ThemeOverlay.AppCompat.Dialog">
@@ -39,5 +39,17 @@
     <style name="CollapsingToolbarTitleStyle"
         parent="@android:style/TextAppearance">
         <item name="android:textColor">@android:color/transparent</item>
+    </style>
+
+    <style name="FilePickerTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="homeAsUpIndicator">@mipmap/lfile_back1</item>
+        <item name="actionBarSize">36dp</item>
+        <item name="navigationIcon">@mipmap/lfile_back1</item><!--返回icon-->
+        <!-- 溢出菜单图标颜色-->
+        <item name="colorControlNormal">@android:color/white</item>
+        <item name="actionMenuTextColor">@android:color/white</item>
     </style>
 </resources>
