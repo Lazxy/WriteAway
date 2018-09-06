@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lfile_not_found_books">请选择导入的图书</string>
+    <string name="lfile_not_found_path">SD 存储卡状态不可用</string>
+    <string name="lfile_last_path">上一级</string>
+    <string name="lfile_selected">选中</string>
+    <string name="lfile_item">项</string>
+    <string name="lfile_detail">详情</string>
+    <string name="lfile_file_size">文件大小 : </string>
+    <string name="lfile_out_size">已经达到最大选择数量</string>
+    <string name="lfile_select_all">全选</string>
+    <string name="lfile_cancel">取消全选</string>
+    <string name="lfile_OK">确定</string>
+    <string name="lfile_choose_folder_tip">请选择一个文件夹</string>
+    <string name="lfile_data_empty">暂无数据</string>
+</resources>
