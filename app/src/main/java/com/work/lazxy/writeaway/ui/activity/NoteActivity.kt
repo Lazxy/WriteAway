@@ -40,6 +40,7 @@ class NoteActivity : BaseFrameActivity<NotePresenter, NoteModel>(), NoteContract
     private var mOldLength: Int = 0
     private var mCanRevoke = false
     private var mShouldQuit = false
+    private var mIsNewNote = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,6 +51,7 @@ class NoteActivity : BaseFrameActivity<NotePresenter, NoteModel>(), NoteContract
     override fun initData() {
         mNote = intent.getSerializableExtra(Constant.Extra.EXTRA_NOTE) as NoteEntity?
         if (mNote == null) {
+            mIsNewNote = true
             //新建笔记的情况
             mNote = NoteEntity("", "", FileUtils.createFileWithTime(ConfigManager.getFileSavedPath()),
                     System.currentTimeMillis())
@@ -140,8 +142,13 @@ class NoteActivity : BaseFrameActivity<NotePresenter, NoteModel>(), NoteContract
         } else {
             //正文无改动时
             if (etNoteTitle.text.toString() != mNote?.title) {
+                val content = if (mIsNewNote) {
+                    "" //这里强迫生成一个空白的新文本文件
+                } else {
+                    null //默认为是已存在文本的无修改情况
+                }
                 //只更改标题信息
-                mPresenter.saveAll(mNote?.filePath, null, etNoteTitle.text.toString(), mNote?.preview)
+                mPresenter.saveAll(mNote?.filePath, content, etNoteTitle.text.toString(), mNote?.preview)
                 mShouldQuit = true
                 return
             }
