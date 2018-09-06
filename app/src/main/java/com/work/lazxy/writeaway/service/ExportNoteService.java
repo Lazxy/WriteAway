@@ -4,8 +4,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.work.lazxy.writeaway.R;
@@ -36,8 +34,9 @@ public class ExportNoteService extends BaseForegroundService<EventCompressComple
 
     @Override
     public void onCreate() {
+        super.onCreate();
         EventBus.getDefault().register(this);
-        mBuilder = new Notification.Builder(this.getApplicationContext());
+        mBuilder = createChannelBuilder();
         mBuilder.setContentTitle("正在准备文件")
                 .setSmallIcon(R.mipmap.ic_notification_small)
                 .setProgress(100, 0, true);
@@ -65,7 +64,7 @@ public class ExportNoteService extends BaseForegroundService<EventCompressComple
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCompressComplete(EventCompressComplete event) {
-        if(event.mIsSuccessful) {
+        if (event.mIsSuccessful) {
             int index = event.mCurrentIndex + 1;
             if (index == 1) {
                 mBuilder.setContentTitle("导出中");
@@ -79,7 +78,7 @@ public class ExportNoteService extends BaseForegroundService<EventCompressComple
                 showEndNotification("导出完成");
                 stopSelf();
             }
-        }else{
+        } else {
             stopForeground(true);
             showEndNotification(event.mErrorMessage);
             stopSelf();
@@ -87,8 +86,8 @@ public class ExportNoteService extends BaseForegroundService<EventCompressComple
     }
 
     private void showEndNotification(String msg) {
-        Notification notification = new Notification.Builder(this.getApplicationContext())
-                .setContentTitle("StNote")
+        Notification.Builder builder = createChannelBuilder();
+        Notification notification = builder.setContentTitle("StNote")
                 .setContentText(msg)
                 .setSmallIcon(R.mipmap.ic_notification_small)
                 .setContentIntent(PendingIntent.getActivity(this, REQUEST_TO_APPLICATION, new Intent(this, MainActivity.class), PendingIntent.FLAG_ONE_SHOT))
@@ -102,8 +101,8 @@ public class ExportNoteService extends BaseForegroundService<EventCompressComple
             List<NoteEntity> notes = NoteDataHandler.getInstance().getAllData();
             if (notes != null) {
                 List<File> files = new ArrayList<>();
-                Map<String,Integer> nameMap = new HashMap<>();//用于防止重名的图
-                Map<String,String> oldNameMap = new HashMap<>();//用来保存原来和现在名字的对应关系，便于后面的恢复命名
+                Map<String, Integer> nameMap = new HashMap<>();//用于防止重名的图
+                Map<String, String> oldNameMap = new HashMap<>();//用来保存原来和现在名字的对应关系，便于后面的恢复命名
                 for (NoteEntity note : notes) {
                     File noteFile = renameFile(note, nameMap, oldNameMap);
                     if (noteFile != null) {
@@ -111,30 +110,30 @@ public class ExportNoteService extends BaseForegroundService<EventCompressComple
                     }
                 }
                 final int sum = files.size();
-                if(sum == 0) {
-                    EventBus.getDefault().post(new EventCompressComplete(false,"文件丢失，导出失败"));
+                if (sum == 0) {
+                    EventBus.getDefault().post(new EventCompressComplete(false, "文件丢失，导出失败"));
                     return;
                 }
                 try {
                     ZipUtils.zipFiles(files, FileUtils.createDefaultCompressFile(), new ZipUtils.CompressListener() {
                         @Override
                         public void onCompressComplete(int progress, File file) {
-                            EventBus.getDefault().post(new EventCompressComplete(progress,sum,true));
+                            EventBus.getDefault().post(new EventCompressComplete(progress, sum, true));
                         }
                     });
                 } catch (IOException e) {
                     e.printStackTrace();
-                    EventBus.getDefault().post(new EventCompressComplete(false,"文件读取出错，导出失败"));
+                    EventBus.getDefault().post(new EventCompressComplete(false, "文件读取出错，导出失败"));
                     return;
-                }finally{
-                    for(File file:files){
-                        if(oldNameMap.containsKey(file.getPath())){
+                } finally {
+                    for (File file : files) {
+                        if (oldNameMap.containsKey(file.getPath())) {
                             file.renameTo(new File(oldNameMap.get(file.getPath())));
                         }
                     }
                 }
-            }else{
-                EventBus.getDefault().post(new EventCompressComplete(false,"数据丢失，导出失败"));
+            } else {
+                EventBus.getDefault().post(new EventCompressComplete(false, "数据丢失，导出失败"));
             }
         }
     };

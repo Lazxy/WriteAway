@@ -1,11 +1,9 @@
 package com.work.lazxy.writeaway.service
 
-import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Message
 
 import com.work.lazxy.writeaway.R
 import com.work.lazxy.writeaway.common.ConfigManager
@@ -30,7 +28,8 @@ class ImportNoteService : BaseForegroundService<EventImportComplete>() {
     private lateinit var mFilePaths: MutableList<String>
 
     override fun onCreate() {
-        mBuilder = Notification.Builder(this.applicationContext)
+        super.onCreate()
+        mBuilder = createChannelBuilder()
         mBuilder.setContentTitle("正在准备文件")
                 .setSmallIcon(R.mipmap.ic_notification_small)
                 .setProgress(100, 0, true)
@@ -65,8 +64,8 @@ class ImportNoteService : BaseForegroundService<EventImportComplete>() {
     }
 
     private fun showEndNotification(msg: String) {
-        val notification = Notification.Builder(this.applicationContext)
-                .setContentTitle("StNote")
+        val builder = createChannelBuilder()
+        val notification = builder.setContentTitle("StNote")
                 .setContentText(msg)
                 .setSmallIcon(R.mipmap.ic_notification_small)
                 .setContentIntent(PendingIntent.getActivity(this, REQUEST_TO_APPLICATION, Intent(this, MainActivity::class.java), PendingIntent.FLAG_ONE_SHOT))
