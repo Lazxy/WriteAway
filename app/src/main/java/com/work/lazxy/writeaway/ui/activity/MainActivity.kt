@@ -1,6 +1,9 @@
 package com.work.lazxy.writeaway.ui.activity
 
 import android.Manifest
+import android.animation.AnimatorInflater
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -119,10 +122,16 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
     override fun onClick(v: View) {
         val id = v.id
         when (id) {
-            R.id.layoutPlanningCount -> pager.currentItem = 0
-            R.id.layoutNoteCount -> pager.currentItem = 1
+            R.id.layoutPlanningCount -> {
+                pager.currentItem = 0
+                drawerLayout.closeDrawer(GravityCompat.START)
+            }
+            R.id.layoutNoteCount -> {
+                pager.currentItem = 1
+                drawerLayout.closeDrawer(GravityCompat.START)
+            }
             R.id.tvImportNotes -> {
-                /*这里需要检查一下写入权限*/
+                //这里需要检查一下写入权限
                 if (PermissionUtils.requestPermission(this,
                                 arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), this)) {
                     selectFiles()
@@ -131,33 +140,30 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
             R.id.tvExportNotes ->
                 //先检查是否有日记存在
                 if (Integer.parseInt(tvNoteCount.text.toString()) > 0) {
-                    /*这里需要检查一下读入权限*/
+                    //这里需要检查一下读入权限
                     if (PermissionUtils.requestPermission(this,
                                     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), this)) {
                         val intent = Intent(this, ExportNoteService::class.java)
                         startService(intent)
                     }
                 } else {
+                    drawerLayout.closeDrawer(GravityCompat.START)
                     Snackbar.make(fab, "这里还没有文本..", Snackbar.LENGTH_SHORT).show()
                 }
             R.id.tvAboutApp -> openActivity(AboutAppActivity::class.java)
         }
-        drawerLayout.closeDrawer(GravityCompat.START)
     }
 
     private fun selectFiles() {
-        //这里为了不与Drawer的收起动画冲突，改为延时启动，之后考虑在这里直接不收起Drawer
-        Handler().postDelayed({
-            LFilePicker().withActivity(this)
-                    .withStartPath(FileUtils.DEFAULT_COMPRESS_FOLDER)
-                    .withChooseMode(true)
-                    .withMultiMode(true)
-                    .withFileFilter(arrayOf(FileUtils.TYPE_TEXT, FileUtils.TYPE_ZIP))
-                    .withRequestCode(Constant.Common.REQUET_CODE_IMPORT_NOTE)
-                    .withTheme(R.style.FilePickerTheme)
-                    .withTitle("选择文本/压缩包")
-                    .start()
-        }, 300)
+        LFilePicker().withActivity(this)
+                .withStartPath(FileUtils.DEFAULT_COMPRESS_FOLDER)
+                .withChooseMode(true)
+                .withMultiMode(true)
+                .withFileFilter(arrayOf(FileUtils.TYPE_TEXT, FileUtils.TYPE_ZIP))
+                .withRequestCode(Constant.Common.REQUET_CODE_IMPORT_NOTE)
+                .withTheme(R.style.FilePickerTheme)
+                .withTitle("选择文本/压缩包")
+                .start()
     }
 
     override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
@@ -168,11 +174,22 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
         when (position) {
             1 -> {
                 supportActionBar?.title = resources.getString(R.string.note_toolbar_title)
+                val set = AnimatorInflater.loadAnimator(this, R.animator.anim_fab_show) as AnimatorSet
                 fab.visibility = View.VISIBLE
+                fab.isEnabled = true
+                set.run {
+                    setTarget(fab)
+                    start()
+                }
             }
             0 -> {
                 supportActionBar?.title = resources.getString(R.string.planning_toolbar_title)
-                fab.visibility = View.GONE
+                val set = AnimatorInflater.loadAnimator(this, R.animator.anim_fab_hide) as AnimatorSet
+                set.run {
+                    setTarget(fab)
+                    start()
+                }
+                fab.isEnabled = false
             }
             else -> {
             }
