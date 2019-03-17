@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.text.TextUtils
 
 import com.work.lazxy.writeaway.R
 import com.work.lazxy.writeaway.common.ConfigManager
@@ -69,6 +70,7 @@ class ImportNoteService : BaseForegroundService<EventImportComplete>() {
                 .setContentText(msg)
                 .setSmallIcon(R.mipmap.ic_notification_small)
                 .setContentIntent(PendingIntent.getActivity(this, REQUEST_TO_APPLICATION, Intent(this, MainActivity::class.java), PendingIntent.FLAG_ONE_SHOT))
+                .setAutoCancel(true)
                 .build()
         (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(IMPORT_NOTIFICATION_ID, notification)
     }
@@ -109,10 +111,15 @@ class ImportNoteService : BaseForegroundService<EventImportComplete>() {
             //直接解析文本文件，将其存入数据库
             if (File(path).exists()) {
                 val content = FileUtils.readTextFormFile(path)
-                val title = path.split("/").last().replace(FileUtils.TYPE_TEXT, "")
+                val info = DataMigrateHelper.getMigrateFileInfo(path)
                 val newPath = FileUtils.createFileWithTime(ConfigManager.getFileSavedPath())
-                NoteDataHandler.getInstance().saveData(title, newPath,
-                        StringUtils.getPreview(content), System.currentTimeMillis())
+                val lastEditTime = if(TextUtils.isEmpty(info[1])){
+                    System.currentTimeMillis()
+                }else{
+                    info[1].toLong()
+                }
+                NoteDataHandler.getInstance().saveData(info[0], newPath,
+                        StringUtils.getPreview(content), lastEditTime)
                 if (content != null) {
                     return FileUtils.writeTextToFile(newPath, content)
                 }

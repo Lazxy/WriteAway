@@ -12,7 +12,7 @@ public interface Constant {
 
         int REQUEST_CODE_UPDATE_NOTE = 0x32;
 
-        int REQUET_CODE_IMPORT_NOTE = 0x64;
+        int REQUEST_CODE_IMPORT_NOTE = 0x64;
     }
     interface Extra{
         String EXTRA_NOTE = "extraNote";

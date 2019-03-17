@@ -29,8 +29,8 @@ public class NotePresenter extends NoteContract.Presenter {
     }
 
     @Override
-    public void saveAll(@Nullable String path, @Nullable String content,
-                        @Nullable String title, @Nullable String preview) {
+    public void saveAll(String path, String content,
+                        String title, String preview) {
         observe(mModel.saveAll(path, content, title, preview, System.currentTimeMillis()), new BaseObserver<NoteEntity>() {
             @Override
             protected void onSuccess(NoteEntity note) {

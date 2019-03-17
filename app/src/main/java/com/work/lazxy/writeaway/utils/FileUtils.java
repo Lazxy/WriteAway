@@ -62,8 +62,12 @@ public class FileUtils {
 
     public static boolean writeTextToFile(String filePath, String content) throws IOException {
         File file = new File(filePath);
-        if (!file.exists())
+        if (!file.exists()) {
+            if(!file.getParentFile().exists()){
+                file.getParentFile().mkdirs();
+            }
             file.createNewFile();
+        }
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new FileWriter(file));
@@ -80,5 +84,16 @@ public class FileUtils {
             }
         }
         return true;
+    }
+
+    public static void deleteFolderWithFiles(File file){
+        if(file.exists()){
+            if(file.isDirectory()){
+                for(File childFilePath: file.listFiles()){
+                    deleteFolderWithFiles(childFilePath);
+                }
+            }
+            file.delete();
+        }
     }
 }

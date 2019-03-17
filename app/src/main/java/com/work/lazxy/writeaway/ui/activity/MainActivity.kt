@@ -3,11 +3,9 @@ package com.work.lazxy.writeaway.ui.activity
 import android.Manifest
 import android.animation.AnimatorInflater
 import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.support.design.widget.Snackbar
 import android.support.v4.view.ViewPager
 import android.view.View
@@ -160,7 +158,7 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
                 .withChooseMode(true)
                 .withMultiMode(true)
                 .withFileFilter(arrayOf(FileUtils.TYPE_TEXT, FileUtils.TYPE_ZIP))
-                .withRequestCode(Constant.Common.REQUET_CODE_IMPORT_NOTE)
+                .withRequestCode(Constant.Common.REQUEST_CODE_IMPORT_NOTE)
                 .withTheme(R.style.FilePickerTheme)
                 .withTitle("选择文本/压缩包")
                 .start()
@@ -207,7 +205,7 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
                     EventBus.getDefault().post(EventChangeNote(true, data?.getSerializableExtra(Constant.Extra.EXTRA_NOTE) as NoteEntity))
                 Constant.Common.REQUEST_CODE_UPDATE_NOTE ->
                     EventBus.getDefault().post(EventChangeNote(true, data?.getSerializableExtra(Constant.Extra.EXTRA_NOTE) as NoteEntity))
-                Constant.Common.REQUET_CODE_IMPORT_NOTE -> {
+                Constant.Common.REQUEST_CODE_IMPORT_NOTE -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
                     val importIntent = Intent(this, ImportNoteService::class.java)
                     importIntent.putExtra(Constant.Extra.EXTRA_IMPORT_PATH, data?.getStringArrayListExtra(ExtraConsts.EXTRA_FILE_PATHS))

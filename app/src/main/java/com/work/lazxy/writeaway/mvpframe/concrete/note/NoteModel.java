@@ -2,7 +2,6 @@ package com.work.lazxy.writeaway.mvpframe.concrete.note;
 
 
 import android.graphics.Bitmap;
-import android.support.annotation.Nullable;
 
 import com.work.lazxy.writeaway.db.NoteDataHandler;
 import com.work.lazxy.writeaway.entity.NoteEntity;
@@ -31,7 +30,7 @@ public class NoteModel implements NoteContract.Model {
     }
 
     @Override
-    public Observable<NoteEntity> saveAll(@Nullable final String path, @Nullable final String content, @Nullable final String title, @Nullable final String preview, final long editTime) {
+    public Observable<NoteEntity> saveAll(final String path, final String content, final String title, final String preview, final long editTime) {
         return Observable.create(new ObservableOnSubscribe<NoteEntity>() {
             @Override
             public void subscribe(@NonNull ObservableEmitter<NoteEntity> e) throws Exception {
