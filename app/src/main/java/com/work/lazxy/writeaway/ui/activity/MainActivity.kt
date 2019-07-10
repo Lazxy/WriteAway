@@ -47,7 +47,9 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
 
     private var mAdapter: BaseTabPagerAdapter<*>? = null
     private var mExitTime: Long = 0
-
+    private var mPermissionRequestCode  = -1
+    private val PERMISSION_WRITE_FILE = 0
+    private val PERMISSION_READ_FILE  = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,6 +132,7 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
             }
             R.id.tvImportNotes -> {
                 //这里需要检查一下写入权限
+                mPermissionRequestCode = PERMISSION_WRITE_FILE
                 if (PermissionUtils.requestPermission(this,
                                 arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), this)) {
                     selectFiles()
@@ -139,6 +142,7 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
                 //先检查是否有日记存在
                 if (Integer.parseInt(tvNoteCount.text.toString()) > 0) {
                     //这里需要检查一下读入权限
+                    mPermissionRequestCode = PERMISSION_READ_FILE
                     if (PermissionUtils.requestPermission(this,
                                     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), this)) {
                         val intent = Intent(this, ExportNoteService::class.java)
@@ -221,10 +225,10 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
     }
 
     override fun onGranted(permission: String) {
-        if (Manifest.permission.WRITE_EXTERNAL_STORAGE == permission) {
+        if (mPermissionRequestCode == PERMISSION_READ_FILE) {
             val intent = Intent(this, ExportNoteService::class.java)
             startService(intent)
-        } else {
+        } else if(mPermissionRequestCode == PERMISSION_WRITE_FILE){
             selectFiles()
         }
     }

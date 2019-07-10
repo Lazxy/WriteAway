@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 
 import com.work.lazxy.writeaway.R;
+import com.work.lazxy.writeaway.common.TipConstant;
 import com.work.lazxy.writeaway.db.NoteDataHandler;
 import com.work.lazxy.writeaway.entity.NoteEntity;
 import com.work.lazxy.writeaway.event.EventCompressComplete;
@@ -89,7 +90,7 @@ public class ExportNoteService extends BaseForegroundService<EventCompressComple
                 List<File> outputFiles = DataMigrateHelper.renameFileWithCreateTime(notes);
                 final int sum = outputFiles.size();
                 if (sum == 0) {
-                    EventBus.getDefault().post(new EventCompressComplete(false, "文件丢失，导出失败"));
+                    EventBus.getDefault().post(new EventCompressComplete(false, TipConstant.WarningTips.getMIGRATE_NOTE_NULL()));
                     return;
                 }
                 try {
@@ -101,13 +102,13 @@ public class ExportNoteService extends BaseForegroundService<EventCompressComple
                     });
                 } catch (IOException e) {
                     e.printStackTrace();
-                    EventBus.getDefault().post(new EventCompressComplete(false, "文件丢失，导出失败"));
+                    EventBus.getDefault().post(new EventCompressComplete(false, TipConstant.WarningTips.getMIGRATE_ZIP_FAILED()));
                     return;
                 } finally {
                     DataMigrateHelper.clearMigrateCache();
                 }
             } else {
-                EventBus.getDefault().post(new EventCompressComplete(false, "数据丢失，导出失败"));
+                EventBus.getDefault().post(new EventCompressComplete(false, TipConstant.WarningTips.getMIGRATE_FILE_LOSE()));
             }
         }
     };
