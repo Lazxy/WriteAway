@@ -5,6 +5,6 @@
         android:height="24dp"
         />
     <solid
-        android:color="@color/dividerBlack"/>
+        android:color="@color/dividerWhite"/>
 
 </shape>

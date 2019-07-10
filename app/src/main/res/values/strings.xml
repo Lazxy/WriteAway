@@ -18,7 +18,7 @@
     <string name="planning_toolbar_title">绿洲</string>
 
     <!--Planning-->
-    <string name="planning_not_too_long">在这里写下一个小小目标（25个字已经很多啦）</string>
+    <string name="planning_not_too_long">在这里写下一个小小目标</string>
     <string name="planning_delete_prompt">要删掉它吗？</string>
     <string name="planning_void_prompt">这里的内容不能为空~</string>
 </resources>

@@ -21,10 +21,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="1."
             android:textSize="32sp"
             android:textStyle="italic"
-            android:textColor="@color/normalGreen"
+            android:textColor="@color/colorPrimaryDark"
             />
 
         <TextView
@@ -37,7 +36,6 @@
             android:layout_marginLeft="16dp"
             android:layout_gravity="center"
             android:gravity="bottom"
-            android:text="6月15日前完成所有项目，将UI与功能都修正完毕"
             android:textSize="18sp"
             />
     </LinearLayout>

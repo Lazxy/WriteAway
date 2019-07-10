@@ -56,7 +56,7 @@ class PlanningFragment : BaseFrameFragment<PlanningPresent, PlanningModel>(), Pl
     }
 
     override fun initListener() {
-        contentView.rvPlanning.setOnTouchListener(View.OnTouchListener { v, event ->
+        contentView.rvPlanning.setOnTouchListener { v, event ->
             if (mHasChanged) {
                 //在交换或者结束时存储一下信息
                 if (event.action == MotionEvent.ACTION_UP) {
@@ -65,7 +65,7 @@ class PlanningFragment : BaseFrameFragment<PlanningPresent, PlanningModel>(), Pl
                 }
             }
             contentView.rvPlanning.onTouchEvent(event)
-        })
+        }
         mListener = PlanningItemTouchListener(object : PlanningItemTouchListener.ItemTouchListener {
             override fun onMove(oldPosition: Int, newPosition: Int) {
                 mHasChanged = true
@@ -93,42 +93,46 @@ class PlanningFragment : BaseFrameFragment<PlanningPresent, PlanningModel>(), Pl
         val helper = ItemTouchHelper(mListener)
         helper.attachToRecyclerView(contentView.rvPlanning)
 
-        contentView.ivPlanningAdd.setOnClickListener(View.OnClickListener {
+        contentView.ivPlanningAdd.setOnClickListener {
             if (mIsEditing) {
+                //编辑状态 终态指向保存
                 val newPlanning = contentView.etNewPlanning.getText().toString()
                 if (!TextUtils.isEmpty(newPlanning)) {
                     val planning = PlanningEntity(mAdapter!!.itemCount + 1, newPlanning)
                     mAdapter!!.addData(planning)
                     mAdapter!!.notifyDataSetChanged()
                     mPresenter.addPlanning(planning)
-                    /*这里得告诉一下MainActivity数量变化*/
+
+                    UIUtils.hideInputMethod(activity, contentView.etNewPlanning)
+                    mIsEditing = false
+                    //这里得告诉一下MainActivity数量变化
                     (activity as MainActivity).updatePlanningCount(true)
                     contentView.ivPlanningAdd.setImageResource(R.drawable.iv_planning_add_36dp_amber)
                     contentView.ivPlanningAdd.setBackgroundResource(R.drawable.selector_planning_add)
                     contentView.layoutPlanningEdit.visibility = View.GONE
-                    UIUtils.hideInputMethod(activity, contentView.etNewPlanning)
-                    mIsEditing = false
                 } else {
                     Toast.makeText(activity, getString(R.string.planning_void_prompt), Toast.LENGTH_SHORT).show()
                 }
             } else {
+                //未编辑状态 终态指向编辑
+                //展示下滑动画
                 mIsEditing = true
                 contentView.layoutPlanningEdit.visibility = View.VISIBLE
                 contentView.etNewPlanning.setText("")
                 contentView.etNewPlanning.requestFocus()
                 UIUtils.showInputMethod(activity, contentView.etNewPlanning)//输入法弹出设置有问题
-                contentView.ivPlanningAdd.setImageResource(R.drawable.iv_planning_confirm_36dp_green)
+                contentView.ivPlanningAdd.setImageResource(R.drawable.iv_planning_confirm_36dp)
                 contentView.ivPlanningAdd.setBackgroundResource(R.drawable.select_planning_confirm)
             }
-        })
+        }
 
-        contentView.ivPlanningCancelAdd.setOnClickListener(View.OnClickListener {
+        contentView.ivPlanningCancelAdd.setOnClickListener {
             contentView.layoutPlanningEdit.visibility = View.GONE
             UIUtils.hideInputMethod(activity, contentView.etNewPlanning)
             contentView.ivPlanningAdd.setImageResource(R.drawable.iv_planning_add_36dp_amber)
             contentView.ivPlanningAdd.setBackgroundResource(R.drawable.selector_planning_add)
             mIsEditing = false
-        })
+        }
     }
 
     override fun initLoad() {

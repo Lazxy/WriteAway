@@ -15,9 +15,9 @@
     <color name="colorAccentBlue">#536DFE</color>
 
     <!--theme green-->
-    <color name="colorPrimary">#8BC34A</color>
-    <color name="colorPrimaryDark">#689F38</color>
-    <color name="colorAccent">#00796B</color>
+    <color name="colorPrimary">#009688</color>
+    <color name="colorPrimaryDark">#00796B</color>
+    <color name="colorAccent">#FF9800</color>
 
     <!--theme red-->
     <color name="colorPrimaryRed">#E51C23</color>
@@ -42,9 +42,8 @@
     <color name="text_grey">#9DA3A5</color>
     <color name="text_blue">#3A8BBB</color>
 
-    <!--Green 200 500 50-->
-    <color name="lightGreen">#A5D6A7</color>
-    <color name="normalGreen">#4CAF50</color>
+    <color name="lightGreen">#009688</color>
+    <color name="normalGreen">#00796B</color>
     <color name="greenWhite">#E8F5E9</color>
 
     <!--Red-->
@@ -53,7 +52,7 @@
     <color name="redWhite">#FFEBEE</color>
 
     <!--Amber-->
-    <color name="lightAmber">#FFE082</color>
-    <color name="normalAmber">#FFC107</color>
+    <color name="lightAmber">#FFC107</color>
+    <color name="normalAmber">#FF9800</color>
     <color name="amberWhite">#FFF8E1</color>
 </resources>
