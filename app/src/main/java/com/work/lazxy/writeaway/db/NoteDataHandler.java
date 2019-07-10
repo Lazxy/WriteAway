@@ -67,7 +67,7 @@ public class NoteDataHandler {
     public List<NoteEntity> getAllData(){
         Cursor cursor;
         List<NoteEntity> notes = new ArrayList<>();
-        cursor = mDatabase.query(DataOpenHelper.NOTE_TABLE_NAME,null,null,null,null,null,null);
+        cursor = mDatabase.query(DataOpenHelper.NOTE_TABLE_NAME,null,null,null,null,null,"edit_time");
         if(cursor.moveToLast()){
             do {
                 String title = cursor.getString(cursor.getColumnIndex("title"));
@@ -103,7 +103,7 @@ public class NoteDataHandler {
             num = num + start;
             start = 0;
         }
-        cursor = mDatabase.rawQuery("select * from " + DataOpenHelper.NOTE_TABLE_NAME + " limit " + num + " offset " + start + " ;", null);
+        cursor = mDatabase.rawQuery("select * from " + DataOpenHelper.NOTE_TABLE_NAME + " order by " + "edit_time" + " limit " + num + " offset " + start +  ";", null);
         if (cursor.moveToLast()) {
             do {
                 String title = cursor.getString(cursor.getColumnIndex("title"));

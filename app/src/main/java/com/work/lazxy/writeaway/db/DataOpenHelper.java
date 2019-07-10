@@ -9,13 +9,6 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 
 class DataOpenHelper extends SQLiteOpenHelper {
-//    private static final String CREATE_APP_TABLE="create table app_record("
-//            +"id integer primary key autoincrement,"
-//            +"date integer ,"
-//            +"package text ,"
-//            +"time integer,"
-//            +"launch integer)";
-
     private static final String CREATE_NOTE_TABLE="create table note("
             +"id integer primary key autoincrement,"
             +"title text,"
