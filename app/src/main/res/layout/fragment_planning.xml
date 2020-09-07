@@ -1,70 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/layout_planning"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rvPlanning"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="16dp"
+        android:layout_weight="1" />
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/lightWhite"
+        android:orientation="vertical"
+        android:visibility="visible">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rvPlanning"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
         <RelativeLayout
             android:id="@+id/layoutPlanningEdit"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:animateLayoutChanges="true"
-            android:visibility="gone"
-            >
+            android:layout_marginBottom="8dp"
+            android:visibility="gone">
+
             <EditText
                 android:id="@+id/etNewPlanning"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginRight="16dp"
-                android:padding="32dp"
+                android:background="@drawable/bg_planning_edit"
                 android:gravity="left"
-                android:textCursorDrawable="@drawable/cursor_edit"
                 android:hint="@string/planning_not_too_long"
+                android:padding="32dp"
                 android:textColor="@color/text_white"
                 android:textColorHint="@color/greenWhite"
-                android:background="@drawable/bg_planning_edit"
+                android:textCursorDrawable="@drawable/cursor_edit"
                 android:textSize="14sp"
-                android:visibility="visible"
-                />
+                android:visibility="visible" />
+
             <ImageView
                 android:id="@+id/ivPlanningCancelAdd"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:padding="8dp"
+                android:layout_alignParentRight="true"
                 android:layout_marginTop="12dp"
                 android:layout_marginRight="12dp"
-                android:src="@drawable/iv_planning_cancel_add"
                 android:foreground="?attr/selectableItemBackground"
-                android:layout_alignParentRight="true"
+                android:padding="8dp"
                 android:scaleType="centerInside"
-                />
+                android:src="@drawable/iv_planning_cancel_add" />
         </RelativeLayout>
+
         <ImageView
             android:id="@+id/ivPlanningAdd"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
+            android:layout_gravity="bottom"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/selector_planning_add"
             android:clickable="true"
             android:foreground="?attr/selectableItemBackground"
-            android:background="@drawable/selector_planning_add"
-            android:src="@drawable/iv_planning_add_36dp_amber"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
             android:scaleType="center"
-            />
+            android:src="@drawable/iv_planning_add_36dp_amber" />
+
     </LinearLayout>
-</ScrollView>
+</LinearLayout>

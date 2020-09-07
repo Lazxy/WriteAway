@@ -2,12 +2,14 @@ package com.work.lazxy.writeaway.ui.fragment
 
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.helper.ItemTouchHelper
+import android.support.v7.widget.SimpleItemAnimator
 import android.text.InputFilter
 import android.text.TextUtils
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
+import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager
+import com.h6ah4i.android.widget.advrecyclerview.swipeable.RecyclerViewSwipeManager
 
 import com.work.lazxy.writeaway.R
 import com.work.lazxy.writeaway.entity.PlanningEntity
@@ -21,6 +23,7 @@ import com.work.lazxy.writeaway.ui.filter.EditLengthInputFilter
 import com.work.lazxy.writeaway.ui.listener.PlanningItemTouchListener
 import com.work.lazxy.writeaway.ui.widget.ProgressDialog
 import com.work.lazxy.writeaway.utils.UIUtils
+import kotlinx.android.synthetic.main.fragment_planning.*
 import kotlinx.android.synthetic.main.fragment_planning.view.*
 
 import java.util.ArrayList
@@ -31,9 +34,9 @@ import java.util.Collections
  */
 
 class PlanningFragment : BaseFrameFragment<PlanningPresent, PlanningModel>(), PlanningContract.View {
-    private var mAdapter: PlanningAdapter? = null
-    private var mListener: PlanningItemTouchListener? = null
-    private var mDialog: ProgressDialog? = null
+    private lateinit var mAdapter: PlanningAdapter
+    private lateinit var mListener: PlanningItemTouchListener
+    private lateinit var mDialog: ProgressDialog
     private var mIsEditing: Boolean = false
     private var mHasChanged: Boolean = false
 
@@ -44,14 +47,21 @@ class PlanningFragment : BaseFrameFragment<PlanningPresent, PlanningModel>(), Pl
 
     override fun initData() {
         mDialog = ProgressDialog(activity)
-        mAdapter = PlanningAdapter(R.layout.item_planning, ArrayList())
+        mAdapter = PlanningAdapter(ArrayList())
         mIsEditing = false
         mHasChanged = false
     }
 
     override fun initView() {
-        contentView.rvPlanning.adapter = mAdapter
-        contentView.rvPlanning.layoutManager = LinearLayoutManager(activity)
+        val dragManager = RecyclerViewDragDropManager()
+        val swipeManager = RecyclerViewSwipeManager();
+        val rv = contentView.rvPlanning;
+        rv.adapter = mAdapter.let { swipeManager.createWrappedAdapter(dragManager.createWrappedAdapter(it)) }
+        rv.layoutManager = LinearLayoutManager(activity)
+        // disable change animations
+        (rv.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+        dragManager.attachRecyclerView(contentView.rvPlanning)
+        swipeManager.attachRecyclerView(contentView.rvPlanning)
         contentView.etNewPlanning.filters = arrayOf<InputFilter>(EditLengthInputFilter(resources.getInteger(R.integer.planning_length) * 2))
     }
 
@@ -60,48 +70,51 @@ class PlanningFragment : BaseFrameFragment<PlanningPresent, PlanningModel>(), Pl
             if (mHasChanged) {
                 //在交换或者结束时存储一下信息
                 if (event.action == MotionEvent.ACTION_UP) {
-                    mPresenter.savePlanning(mAdapter!!.data)
+                    mPresenter.savePlanning(mAdapter.data)
                     mHasChanged = false
                 }
             }
             contentView.rvPlanning.onTouchEvent(event)
         }
-        mListener = PlanningItemTouchListener(object : PlanningItemTouchListener.ItemTouchListener {
+        mListener = object : PlanningItemTouchListener {
             override fun onMove(oldPosition: Int, newPosition: Int) {
                 mHasChanged = true
-                val plannings = mAdapter!!.data
+                val plannings = mAdapter.data
                 //交换一下两者的位置和信息
                 plannings[oldPosition].priority = newPosition + 1
                 plannings[newPosition].priority = oldPosition + 1
                 Collections.swap(plannings, oldPosition, newPosition)
-                mAdapter!!.notifyDataSetChanged()
+                mAdapter.notifyDataSetChanged()
             }
 
-            override fun onSwipe(position: Int) {
+            override fun onSwipe(plan: PlanningEntity, position: Int) {
                 UIUtils.showSimpleAlertDialog(activity, false, null, getString(R.string.planning_delete_prompt), "删除", "取消", { dialog, which ->
-                    val plannings = mAdapter!!.data
-                    plannings.removeAt(position)
+                    val plannings = mAdapter.data
+//                    plannings.removeAt(position)
                     for (i in position until plannings.size) {
                         plannings[i].priority = i + 1
                     }
                     mPresenter.savePlanning(plannings)
                     (activity as MainActivity).updatePlanningCount(false)
-                    mAdapter!!.notifyDataSetChanged()
-                }) { dialog, which -> mAdapter!!.notifyDataSetChanged() }
+                    mAdapter.notifyDataSetChanged()
+                }) { dialog, which ->
+                    mAdapter.data.add(position, plan);
+                    mAdapter.notifyDataSetChanged()
+                }
             }
-        })
-        val helper = ItemTouchHelper(mListener)
-        helper.attachToRecyclerView(contentView.rvPlanning)
+        }
+        mAdapter.setItemTouchListener(mListener);
 
         contentView.ivPlanningAdd.setOnClickListener {
             if (mIsEditing) {
                 //编辑状态 终态指向保存
                 val newPlanning = contentView.etNewPlanning.getText().toString()
                 if (!TextUtils.isEmpty(newPlanning)) {
-                    val planning = PlanningEntity(mAdapter!!.itemCount + 1, newPlanning)
-                    mAdapter!!.addData(planning)
-                    mAdapter!!.notifyDataSetChanged()
+                    val planning = PlanningEntity(mAdapter.itemCount + 1, newPlanning)
+                    mAdapter.addData(planning)
+                    mAdapter.notifyDataSetChanged()
                     mPresenter.addPlanning(planning)
+                    rvPlanning.scrollToPosition(mAdapter.itemCount - 1)
 
                     UIUtils.hideInputMethod(activity, contentView.etNewPlanning)
                     mIsEditing = false
@@ -140,20 +153,20 @@ class PlanningFragment : BaseFrameFragment<PlanningPresent, PlanningModel>(), Pl
     }
 
 
-    override fun setPlanning(plannings: List<PlanningEntity>) {
-        mAdapter!!.setNewData(plannings)
+    override fun setPlanning(plannings: MutableList<PlanningEntity>) {
+        mAdapter.setNewData(plannings)
     }
 
     override fun onRequestStart() {
-        mDialog!!.show()
+        mDialog.show()
     }
 
     override fun onRequestError(msg: String) {
-        mDialog!!.dismiss()
+        mDialog.dismiss()
         Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
     }
 
     override fun onRequestEnd() {
-        mDialog!!.dismiss()
+        mDialog.dismiss()
     }
 }
