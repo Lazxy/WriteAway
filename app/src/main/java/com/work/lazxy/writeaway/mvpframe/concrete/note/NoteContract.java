@@ -19,7 +19,7 @@ public interface NoteContract {
     interface Model extends BaseModel {
         Observable<String> getContent(String path);
         Observable<NoteEntity> saveAll(String path, @Nullable String content,String title,String preview,long editTime);
-        Observable<Bitmap> shareAsPhoto(String content);
+        // Observable<Bitmap> shareAsPhoto(String content);
     }
     interface View extends BaseView {
         void setContent(String content);
@@ -28,6 +28,6 @@ public interface NoteContract {
     abstract class Presenter extends BasePresenter<Model,View> {
         public abstract void getContent(String path);
         public abstract void saveAll(String path, @Nullable String content, String title,String preview);
-        public abstract void shareAsPhoto(String content);
+        // public abstract void shareAsPhoto(String content);
     }
 }

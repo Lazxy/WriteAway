@@ -53,7 +53,7 @@ class NoteActivity : BaseFrameActivity<NotePresenter, NoteModel>(), NoteContract
         if (mNote == null) {
             mIsNewNote = true
             //新建笔记的情况
-            mNote = NoteEntity("", "", FileUtils.createFileWithTime(ConfigManager.getFileSavedPath()),
+            mNote = NoteEntity("", "", FileUtils.createFileWithTime(ConfigManager.fileSavedPath),
                     System.currentTimeMillis())
         }
     }
@@ -88,7 +88,7 @@ class NoteActivity : BaseFrameActivity<NotePresenter, NoteModel>(), NoteContract
     }
 
     override fun initLoad() {
-        mPresenter.getContent(mNote?.filePath)
+        mPresenter.getContent(mNote!!.filePath)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -120,7 +120,7 @@ class NoteActivity : BaseFrameActivity<NotePresenter, NoteModel>(), NoteContract
                     }, null)
             R.id.menu_note_save -> {
                 val content = padNoteContent.text.toString()
-                mPresenter.saveAll(mNote?.filePath, content, etNoteTitle.text.toString(), StringUtils.getPreview(content))
+                mPresenter.saveAll(mNote!!.filePath, content, etNoteTitle.text.toString(), StringUtils.getPreview(content))
                 mShouldQuit = false
                 padNoteContent.clearFocus()
                 mOldLength = padNoteContent.length()
@@ -136,7 +136,7 @@ class NoteActivity : BaseFrameActivity<NotePresenter, NoteModel>(), NoteContract
         if (mCanRevoke || mOldLength != padNoteContent.length()) {
             UIUtils.showSimpleAlertDialog(this, null, "文本有修改，需要保存吗？", "保存", "取消", { dialog, which ->
                 val content = padNoteContent.text.toString()
-                mPresenter.saveAll(mNote?.filePath, content, etNoteTitle.text.toString(), StringUtils.getPreview(content))
+                mPresenter.saveAll(mNote!!.filePath, content, etNoteTitle.text.toString(), StringUtils.getPreview(content))
                 mShouldQuit = true
             }) { _, _ -> super@NoteActivity.onBackPressed() }
         } else {
@@ -148,7 +148,7 @@ class NoteActivity : BaseFrameActivity<NotePresenter, NoteModel>(), NoteContract
                     null //默认为是已存在文本的无修改情况
                 }
                 //只更改标题信息
-                mPresenter.saveAll(mNote?.filePath, content, etNoteTitle.text.toString(), mNote?.preview)
+                mPresenter.saveAll(mNote!!.filePath, content, etNoteTitle.text.toString(), mNote!!.preview)
                 mShouldQuit = true
                 return
             }

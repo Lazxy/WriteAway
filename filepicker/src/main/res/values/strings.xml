@@ -11,4 +11,5 @@
     <string name="lfile_cancel">Cancel</string>
     <string name="lfile_OK">OK</string>
     <string name="lfile_choose_folder_tip">Please select folders path</string>
+    <string name="lfile_data_empty">Data is Empty</string>
 </resources>

@@ -112,13 +112,13 @@ class ImportNoteService : BaseForegroundService<EventImportComplete>() {
             if (File(path).exists()) {
                 val content = FileUtils.readTextFormFile(path)
                 val info = DataMigrateHelper.getMigrateFileInfo(path)
-                val newPath = FileUtils.createFileWithTime(ConfigManager.getFileSavedPath())
-                val lastEditTime = if(TextUtils.isEmpty(info[1])){
+                val newPath = FileUtils.createFileWithTime(ConfigManager.fileSavedPath)
+                val lastEditTime = if (TextUtils.isEmpty(info[1])) {
                     System.currentTimeMillis()
-                }else{
-                    info[1].toLong()
+                } else {
+                    info[1]!!.toLong()
                 }
-                NoteDataHandler.getInstance().saveData(info[0], newPath,
+                NoteDataHandler.instance.saveData(info[0], newPath,
                         StringUtils.getPreview(content), lastEditTime)
                 if (content != null) {
                     return FileUtils.writeTextToFile(newPath, content)
