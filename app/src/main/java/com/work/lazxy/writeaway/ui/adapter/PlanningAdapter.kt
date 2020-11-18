@@ -45,7 +45,7 @@ class PlanningAdapter(private var mData: MutableList<PlanningEntity>) : BaseSwip
     }
 
     override fun onGetSwipeReactionType(holder: PlanningViewHolder, position: Int, x: Int, y: Int): Int { //设置滑动方向 这里是右滑触发滑动事件
-        return SwipeableItemConstants.REACTION_CAN_SWIPE_RIGHT
+        return SwipeableItemConstants.REACTION_CAN_SWIPE_RIGHT or SwipeableItemConstants.REACTION_MASK_START_SWIPE_LEFT
     }
 
     override fun onSwipeItem(holder: PlanningViewHolder, position: Int, result: Int): SwipeResultAction {
