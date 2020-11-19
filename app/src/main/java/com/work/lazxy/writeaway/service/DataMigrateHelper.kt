@@ -55,19 +55,26 @@ object DataMigrateHelper {
             //去除.txt后缀
             filePath = filePath.substring(0, filePath.length - FileUtils.TYPE_TEXT.length)
         }
-        var info = arrayOfNulls<String>(2)
+        val info = arrayOfNulls<String>(2)
         if (!TextUtils.isEmpty(filePath)) {
             var fileName = ""
             val fileNameParts = filePath.split("/".toRegex()).toTypedArray()
             if (fileNameParts.size > 0) {
                 fileName = fileNameParts[fileNameParts.size - 1]
             }
-            val titleAndTime: Array<String?> = fileName.split(EDIT_TIME_SEPARATOR.toRegex()).toTypedArray()
-            if (titleAndTime.size == 2) {
-                info = titleAndTime
-            } else if (titleAndTime.size > 2) {
+            //按照当前的分隔方式 Kotlin的split会返回最后一项为空的数组，需要将其排除
+            var emptyCount = 0;
+            val titleAndTime: List<String> = fileName.split(EDIT_TIME_SEPARATOR.toRegex())
+            if (TextUtils.isEmpty(titleAndTime.last())) {
+                emptyCount++;
+            }
+
+            if (titleAndTime.size - emptyCount == 2) {
+                info[0] = titleAndTime[0]
+                info[1] = titleAndTime[1]
+            } else if (titleAndTime.size - emptyCount > 2) {
                 //此时证明在title中也存在分割标记
-                info[1] = titleAndTime[titleAndTime.size - 1]
+                info[1] = titleAndTime[titleAndTime.size - 1 - emptyCount]
                 info[0] = fileName.substring(0, info[1]!!.length)
             } else {
                 info[0] = fileName

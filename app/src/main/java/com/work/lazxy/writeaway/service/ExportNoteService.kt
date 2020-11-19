@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.widget.Toast
 import com.work.lazxy.writeaway.R
 import com.work.lazxy.writeaway.common.TipConstant.WarningTips.MIGRATE_FILE_LOSE
 import com.work.lazxy.writeaway.common.TipConstant.WarningTips.MIGRATE_NOTE_NULL
@@ -63,11 +64,13 @@ class ExportNoteService : BaseForegroundService<EventCompressComplete?>() {
                 stopForeground(true)
                 showEndNotification("导出完成")
                 stopSelf()
+                Toast.makeText(baseContext, "导出完成！", Toast.LENGTH_SHORT).show()
             }
         } else {
             stopForeground(true)
             showEndNotification(event.mErrorMessage)
             stopSelf()
+            Toast.makeText(baseContext, "导出失败！", Toast.LENGTH_SHORT).show()
         }
     }
 

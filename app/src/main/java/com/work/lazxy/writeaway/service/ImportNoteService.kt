@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.text.TextUtils
+import android.widget.Toast
 
 import com.work.lazxy.writeaway.R
 import com.work.lazxy.writeaway.common.ConfigManager
@@ -56,10 +57,12 @@ class ImportNoteService : BaseForegroundService<EventImportComplete>() {
             stopForeground(true)
             showEndNotification("导入完成")
             stopSelf()
+            Toast.makeText(baseContext, "导入完成！", Toast.LENGTH_SHORT).show()
         } else {
             stopForeground(true)
             showEndNotification(event.mErrorMessage)
             stopSelf()
+            Toast.makeText(baseContext, "导入失败！", Toast.LENGTH_SHORT).show()
         }
         EventBus.getDefault().post(EventChangeNote(true, null))
     }
