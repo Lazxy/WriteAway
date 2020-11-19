@@ -41,7 +41,7 @@ class AboutAppActivity : BaseActivity() {
     }
 
     override fun initLoad() {
-        webContent.loadUrl("file:///android_asset/about_app.html")
+        webContent.loadUrl("file:///android_asset/AboutApp.html")
     }
 
     private inner class AboutClient : WebViewClient() {
