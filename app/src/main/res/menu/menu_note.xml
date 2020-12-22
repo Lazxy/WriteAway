@@ -2,11 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/menu_note_save_as_pic"
+        android:title="生成图片"
+        android:icon="@drawable/btn_note_pic_24dp_white"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/menu_note_revoke"
         android:title="回溯"
         android:icon="@drawable/btn_note_revoke_24dp_white"
-        app:showAsAction="always"
-        />
+        app:showAsAction="always" />
+
     <item
         android:id="@+id/menu_note_clear"
         android:title="清空"

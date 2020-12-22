@@ -23,6 +23,7 @@
         app:cardPreventCornerOverlap="true">
 
         <ScrollView
+            android:id="@+id/svNoteLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fadeScrollbars="false"
@@ -89,6 +90,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
                     android:layout_marginRight="8dp"
+                    android:lineSpacingMultiplier="1"
+                    android:lineSpacingExtra="8dp"
+                    android:text="待英雄从铁铸的摇篮中长成，勇敢地心像从前一样，去造访万能的神祗。在此之前，我却常常感到，与其孤身跋涉，不如安然沉睡，何苦如此等待，哑然无语，茫然失措。在这贫困的时代，诗人何为？可是，你却说，诗人是酒神的神圣祭司。\n在神圣的黑夜中，他走遍大地。"
                     android:textCursorDrawable="@drawable/cursor_edit"
                     android:inputType="textNoSuggestions"
                     android:textSize="16sp" />

@@ -23,12 +23,12 @@ import com.work.lazxy.writeaway.ui.filter.EditLengthInputFilter
 import com.work.lazxy.writeaway.ui.filter.LineBreakInputFilter
 import com.work.lazxy.writeaway.ui.filter.backstack.Action
 import com.work.lazxy.writeaway.ui.widget.ProgressDialog
-import com.work.lazxy.writeaway.utils.CalendarUtils
-import com.work.lazxy.writeaway.utils.FileUtils
-import com.work.lazxy.writeaway.utils.StringUtils
-import com.work.lazxy.writeaway.utils.UIUtils
+import com.work.lazxy.writeaway.utils.*
 
 import kotlinx.android.synthetic.main.activity_note.*
+import kotlinx.coroutines.*
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Created by Lazxy on 2017/4/27.
@@ -127,6 +127,11 @@ class NoteActivity : BaseFrameActivity<NotePresenter, NoteModel>(), NoteContract
                 setCanRevoke(false)
                 UIUtils.hideInputMethod(this, padNoteContent)//隐藏输入法键盘
             }
+            R.id.menu_note_save_as_pic -> {
+                UIUtils.showSimpleAlertDialog(this, "提示", "要根据当前内容生成长图吗？", "确定", "", { _, _ ->
+                    saveToBitmap()
+                }, { _, _ -> })
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -197,5 +202,30 @@ class NoteActivity : BaseFrameActivity<NotePresenter, NoteModel>(), NoteContract
         intent.putExtra(Constant.Extra.EXTRA_NOTE, note)
         setResult(Activity.RESULT_OK, intent)
         mNote = note
+    }
+
+    private fun saveToBitmap() {
+        GlobalScope.launch(Dispatchers.Main) {
+            val progress = ProgressDialog(this@NoteActivity)
+            progress.show()
+            val result = async {
+                generateBitmap()
+            }
+            if (result.await()) {
+                UIUtils.showSimpleAlertDialog(this@NoteActivity, "提示", "图片生成成功！", "确认",
+                        null, null, null)
+            } else {
+                UIUtils.showSimpleAlertDialog(this@NoteActivity, "提示", "图片生成失败，请重试！", "确认",
+                        null, null, null)
+            }
+            progress.hide()
+        }
+    }
+
+    private suspend fun generateBitmap() = suspendCoroutine<Boolean> {
+        CoroutineScope(Dispatchers.IO).launch {
+            val builder = NoteSnapshotGenerator.Builder().setText(padNoteContent.text.toString()).setTitle(etNoteTitle.text.toString())
+            it.resume(builder.build(this@NoteActivity).generate())
+        }
     }
 }
