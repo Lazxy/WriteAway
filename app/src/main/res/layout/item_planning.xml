@@ -35,6 +35,7 @@
                 android:layout_gravity="center"
                 android:layout_marginLeft="16dp"
                 android:layout_weight="1"
+                android:textIsSelectable="true"
                 android:ellipsize="end"
                 android:gravity="bottom"
                 android:maxLength="@integer/planning_length"

@@ -25,8 +25,8 @@ public class NotePad extends android.support.v7.widget.AppCompatEditText {
         mStack = new Stack<>();
     }
 
-    public NotePad(Context context, AttributeSet attr){
-        super(context,attr);
+    public NotePad(Context context, AttributeSet attr) {
+        super(context, attr);
         mStack = new Stack<>();
         setGravity(Gravity.START);
         setSingleLine(false);
@@ -40,25 +40,37 @@ public class NotePad extends android.support.v7.widget.AppCompatEditText {
         super.onDraw(canvas);
     }
 
-    private void addListeners(){
+    private void addListeners() {
         //添加各种需要的监听或者过滤，这里的过滤顺序跟过滤器数组顺序有关
         setFilters(new InputFilter[]{new LineBreakInputFilter(),
-        new RevokeInputFilter(mStack)});
+                new RevokeInputFilter(mStack)});
     }
 
-    public void revoke(){
-        if(isCanRevoke()) {
+    public void revoke() {
+        if (isCanRevoke()) {
             Action backAction = mStack.pop();
-            setText(Action.REVOKED_SIGN + backAction.revoke(getText().toString()) + Action.REVOKED_SIGN);
+            setText(generateRevokeContent(backAction.revoke(getText().toString())));
             setSelection(backAction.getOriginPosition());
         }
     }
 
-    public boolean isCanRevoke(){
-        return mStack.size()>0;
+    public void setContent(CharSequence text) {
+        setText(generateIgnoredContent(text));
     }
 
-    public void clearRevokeStack(){
+    private String generateIgnoredContent(CharSequence content) {
+        return Action.IGNORE_SIGN + content + Action.IGNORE_SIGN;
+    }
+
+    private String generateRevokeContent(CharSequence content) {
+        return Action.REVOKED_SIGN + content + Action.REVOKED_SIGN;
+    }
+
+    public boolean isCanRevoke() {
+        return mStack.size() > 0;
+    }
+
+    public void clearRevokeStack() {
         mStack.clear();
     }
 }

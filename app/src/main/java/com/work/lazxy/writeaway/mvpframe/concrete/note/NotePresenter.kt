@@ -2,7 +2,6 @@ package com.work.lazxy.writeaway.mvpframe.concrete.note
 
 import com.work.lazxy.writeaway.entity.NoteEntity
 import com.work.lazxy.writeaway.mvpframe.base.BaseObserver
-import com.work.lazxy.writeaway.ui.filter.backstack.Action
 
 /**
  * Created by Lazxy on 2017/2/25.
@@ -11,7 +10,7 @@ class NotePresenter : NoteContract.Presenter() {
     override fun getContent(path: String) {
         observe(mModel.getContent(path), object : BaseObserver<String>(mView) {
             protected override fun onSuccess(s: String) {
-                mView.setContent(Action.REVOKED_SIGN + s + Action.REVOKED_SIGN)
+                mView.setContent(s)
             }
 
             override fun onError(e: Throwable) {
@@ -28,6 +27,4 @@ class NotePresenter : NoteContract.Presenter() {
             }
         })
     }
-
-//    fun shareAsPhoto(content: String?) {}
 }

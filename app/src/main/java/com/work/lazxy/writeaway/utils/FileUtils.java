@@ -2,6 +2,7 @@ package com.work.lazxy.writeaway.utils;
 
 
 import android.os.Environment;
+import android.text.TextUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -49,6 +50,9 @@ public class FileUtils {
             while ((line = reader.readLine()) != null) {
                 buffer.append(line).append("\n");
             }
+            if(TextUtils.isEmpty(buffer)){
+                return "";
+            }
             return buffer.delete(buffer.length()-1,buffer.length()).toString();//这里要除去最后一个换行符
         } finally {
             if (reader != null)
@@ -76,11 +80,13 @@ public class FileUtils {
             e.printStackTrace();
             return false;
         } finally {
-            if (writer != null) try {
-                writer.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return false;
+                }
             }
         }
         return true;

@@ -7,6 +7,8 @@ package com.work.lazxy.writeaway.ui.filter.backstack;
 public interface Action {
     String REVOKED_SIGN = "/re";
 
+    String IGNORE_SIGN = "/ig";
+
     String revoke(String src);
 
     int getOriginPosition();

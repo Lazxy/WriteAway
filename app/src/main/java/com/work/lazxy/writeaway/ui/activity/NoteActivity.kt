@@ -21,7 +21,6 @@ import com.work.lazxy.writeaway.mvpframe.concrete.note.NoteModel
 import com.work.lazxy.writeaway.mvpframe.concrete.note.NotePresenter
 import com.work.lazxy.writeaway.ui.filter.EditLengthInputFilter
 import com.work.lazxy.writeaway.ui.filter.LineBreakInputFilter
-import com.work.lazxy.writeaway.ui.filter.backstack.Action
 import com.work.lazxy.writeaway.ui.widget.ProgressDialog
 import com.work.lazxy.writeaway.utils.*
 
@@ -36,7 +35,7 @@ import kotlin.coroutines.suspendCoroutine
 
 class NoteActivity : BaseFrameActivity<NotePresenter, NoteModel>(), NoteContract.View {
     private val mProgress: ProgressDialog by lazy { ProgressDialog(this) }
-    private var mNote: NoteEntity? = null
+    private lateinit var mStandardNote: NoteEntity
     private var mOldLength: Int = 0
     private var mCanRevoke = false
     private var mShouldQuit = false
@@ -49,25 +48,26 @@ class NoteActivity : BaseFrameActivity<NotePresenter, NoteModel>(), NoteContract
     }
 
     override fun initData() {
-        mNote = intent.getSerializableExtra(Constant.Extra.EXTRA_NOTE) as NoteEntity?
-        if (mNote == null) {
-            mIsNewNote = true
+        var note = intent.getSerializableExtra(Constant.Extra.EXTRA_NOTE) as NoteEntity?
+        if (note == null) {
             //新建笔记的情况
-            mNote = NoteEntity("", "", FileUtils.createFileWithTime(ConfigManager.fileSavedPath),
-                    System.currentTimeMillis())
+            note = createNewNote()
+            mIsNewNote = true
         }
+        mStandardNote = note
     }
 
     override fun initView() {
         setSupportActionBar(toolbar)
         supportActionBar?.title = ""
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        if (!TextUtils.isEmpty(mNote?.title))
-            etNoteTitle.setText(mNote?.title)
-        else
+        if (!TextUtils.isEmpty(mStandardNote.title)) {
+            etNoteTitle.setText(mStandardNote.title)
+        } else {
             etNoteTitle.hint = resources.getString(R.string.no_title)
+        }
         etNoteTitle.clearFocus()
-        tvEditTime?.text = CalendarUtils.getTimeFromTimestamp(mNote!!.lastEditTime)
+        tvEditTime?.text = CalendarUtils.getTimeFromTimestamp(mStandardNote.lastEditTime)
         setCanRevoke(false)
     }
 
@@ -88,7 +88,7 @@ class NoteActivity : BaseFrameActivity<NotePresenter, NoteModel>(), NoteContract
     }
 
     override fun initLoad() {
-        mPresenter.getContent(mNote!!.filePath)
+        mPresenter.getContent(mStandardNote.filePath)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -110,73 +110,84 @@ class NoteActivity : BaseFrameActivity<NotePresenter, NoteModel>(), NoteContract
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_note_revoke -> padNoteContent.revoke()
-            R.id.menu_note_clear -> UIUtils.showSimpleAlertDialog(this, null, "确认清空所有内容吗？", "清空", "取消",
-                    DialogInterface.OnClickListener { _, _ ->
-                        //这里会被认为是一个Add操作，而不是替换，所以没办法将其加入回退栈
-                        padNoteContent.setText(Action.REVOKED_SIGN + LineBreakInputFilter.INDENT + Action.REVOKED_SIGN)
-                        padNoteContent.setSelection(padNoteContent.length())
-                        padNoteContent.clearRevokeStack()
-                        setCanRevoke(false)
-                    }, null)
-            R.id.menu_note_save -> {
-                val content = padNoteContent.text.toString()
-                mPresenter.saveAll(mNote!!.filePath, content, etNoteTitle.text.toString(), StringUtils.getPreview(content))
-                mShouldQuit = false
-                padNoteContent.clearFocus()
-                mOldLength = padNoteContent.length()
-                setCanRevoke(false)
-                UIUtils.hideInputMethod(this, padNoteContent)//隐藏输入法键盘
-            }
-            R.id.menu_note_save_as_pic -> {
-                UIUtils.showSimpleAlertDialog(this, "提示", "要根据当前内容生成长图吗？", "确定", "", { _, _ ->
-                    saveToBitmap()
-                }, { _, _ -> })
-            }
+            R.id.menu_note_clear -> clearNote()
+            R.id.menu_note_save -> saveNote()
+            R.id.menu_note_save_as_pic -> saveAsPicture()
         }
         return super.onOptionsItemSelected(item)
     }
 
     override fun onBackPressed() {
-        //这里对文本修改的判断有一种情况下会失效，即用户修改了超过20次内容后又正好回退到回退栈清空时，页面不会出现保存标记，且退出保存不会被触发
-        if (mCanRevoke || mOldLength != padNoteContent.length()) {
+        if (checkNoteChanged()) {
+            //当文本有改动时，弹窗提示，确认后保存文本
             UIUtils.showSimpleAlertDialog(this, null, "文本有修改，需要保存吗？", "保存", "取消", { dialog, which ->
                 val content = padNoteContent.text.toString()
-                mPresenter.saveAll(mNote!!.filePath, content, etNoteTitle.text.toString(), StringUtils.getPreview(content))
-                mShouldQuit = true
+                saveNoteInfo(mStandardNote.filePath, content, etNoteTitle.text.toString(), StringUtils.getPreview(content), true)
             }) { _, _ -> super@NoteActivity.onBackPressed() }
         } else {
-            //正文无改动时
-            if (etNoteTitle.text.toString() != mNote?.title) {
-                val content = if (mIsNewNote) {
-                    "" //这里强迫生成一个空白的新文本文件
-                } else {
-                    null //默认为是已存在文本的无修改情况
-                }
+            //正文无改动时，判断是否保存标题信息，然后直接退出当前页面
+            if (etNoteTitle.text.toString() != mStandardNote.title) {
+                //为一个新笔记时强迫生成一个空白的新文本文件 否则只保存标题
+                val content = if (mIsNewNote) "" else null
                 //只更改标题信息
-                mPresenter.saveAll(mNote!!.filePath, content, etNoteTitle.text.toString(), mNote!!.preview)
-                mShouldQuit = true
+                saveNoteInfo(mStandardNote.filePath, content, etNoteTitle.text.toString(), mStandardNote.preview, true)
                 return
             }
             super.onBackPressed()
         }
     }
 
-    override fun onRequestStart() {
-        mProgress.show()
+    private fun clearNote() {
+        UIUtils.showSimpleAlertDialog(this, null, "确认清空所有内容吗？", "清空", "取消",
+                DialogInterface.OnClickListener { _, _ ->
+                    //这里会被认为是一个Add操作，而不是替换，所以没办法将其加入回退栈
+                    padNoteContent.setContent(LineBreakInputFilter.INDENT)
+                    padNoteContent.setSelection(padNoteContent.length())
+                    padNoteContent.clearRevokeStack()
+                    setCanRevoke(false)
+                }, null)
     }
 
-    override fun onRequestError(msg: String) {
-        mProgress.dismiss()
-        showShortToast(msg)
-        etNoteTitle.clearFocus()
+    private fun saveNote() {
+        val content = padNoteContent.text.toString()
+        saveNoteInfo(mStandardNote.filePath, content, etNoteTitle.text.toString(), StringUtils.getPreview(content), false)
+        setCanRevoke(false)
+        padNoteContent.clearFocus()
+        UIUtils.hideInputMethod(this, padNoteContent)//隐藏输入法键盘
     }
 
-    override fun onRequestEnd() {
-        mProgress.dismiss()
+    private fun saveAsPicture() {
+        UIUtils.showSimpleAlertDialog(this, "提示", "要根据当前内容生成长图吗？", "确定", "", { _, _ ->
+            saveToBitmap()
+        }, { _, _ -> })
+    }
+
+    /**
+     * 校验文本是否有改动
+     * @return true：文本经过修改 false：文本未经修改
+     */
+    private fun checkNoteChanged(): Boolean {
+        //这里对文本修改的判断有一种情况下会失效，即用户修改了超过内容次数达到上限后又正好回退到回退栈清空时，页面不会出现保存标记，
+        // 若此时文本长度恰好等于初始文本长度时，则且退出保存不会被触发
+        return mCanRevoke || mOldLength != padNoteContent.length()
+    }
+
+    private fun saveNoteInfo(path: String, content: String?,
+                             title: String, preview: String, shouldQuit: Boolean) {
+        mPresenter.saveAll(path, content, title, preview)
+        mShouldQuit = shouldQuit
+        mStandardNote = NoteEntity(title, preview, path, System.currentTimeMillis())
+        mIsNewNote = false
+        mOldLength = content?.length ?: 0
+    }
+
+    private fun createNewNote():NoteEntity{
+        return NoteEntity("", "", FileUtils.createFileWithTime(ConfigManager.fileSavedPath),
+                System.currentTimeMillis())
     }
 
     override fun setContent(content: String) {
-        padNoteContent.setText(content)
+        padNoteContent.setContent(content)
         if (padNoteContent.text.toString() == LineBreakInputFilter.INDENT) {
             padNoteContent.setSelection(padNoteContent.length())
             padNoteContent.requestFocus()
@@ -186,7 +197,10 @@ class NoteActivity : BaseFrameActivity<NotePresenter, NoteModel>(), NoteContract
 
     override fun onSaveSuccessful(note: NoteEntity) {
         showShortToast("保存成功")
-        setResponse(note)
+        val intent = Intent()
+        intent.putExtra(Constant.Extra.EXTRA_NOTE, note)
+        setResult(Activity.RESULT_OK, intent)
+        mStandardNote = note
         if (mShouldQuit) {
             finish()
         }
@@ -195,13 +209,6 @@ class NoteActivity : BaseFrameActivity<NotePresenter, NoteModel>(), NoteContract
     private fun setCanRevoke(canRevoke: Boolean) {
         mCanRevoke = canRevoke
         invalidateOptionsMenu()
-    }
-
-    private fun setResponse(note: NoteEntity) {
-        val intent = Intent()
-        intent.putExtra(Constant.Extra.EXTRA_NOTE, note)
-        setResult(Activity.RESULT_OK, intent)
-        mNote = note
     }
 
     private fun saveToBitmap() {
@@ -224,8 +231,24 @@ class NoteActivity : BaseFrameActivity<NotePresenter, NoteModel>(), NoteContract
 
     private suspend fun generateBitmap() = suspendCoroutine<Boolean> {
         CoroutineScope(Dispatchers.IO).launch {
-            val builder = NoteSnapshotGenerator.Builder().setText(padNoteContent.text.toString()).setTitle(etNoteTitle.text.toString())
+            val builder = NoteSnapshotGenerator.Builder()
+                    .setText(padNoteContent.text.toString())
+                    .setTitle(etNoteTitle.text.toString())
             it.resume(builder.build(this@NoteActivity).generate())
         }
+    }
+
+    override fun onRequestStart() {
+        mProgress.show()
+    }
+
+    override fun onRequestError(msg: String) {
+        mProgress.dismiss()
+        showShortToast(msg)
+        etNoteTitle.clearFocus()
+    }
+
+    override fun onRequestEnd() {
+        mProgress.dismiss()
     }
 }
