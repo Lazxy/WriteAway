@@ -5,6 +5,7 @@ import android.animation.AnimatorInflater
 import android.animation.AnimatorSet
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.view.ViewPager
@@ -13,8 +14,6 @@ import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.view.Menu
-import com.leon.lfilepickerlibrary.LFilePicker
-import com.leon.lfilepickerlibrary.consts.ExtraConsts
 
 import com.work.lazxy.writeaway.R
 import com.work.lazxy.writeaway.common.Constant
@@ -31,7 +30,7 @@ import com.work.lazxy.writeaway.service.ImportNoteService
 import com.work.lazxy.writeaway.ui.adapter.MainPagerAdapter
 import com.work.lazxy.writeaway.ui.fragment.NoteDirFragment
 import com.work.lazxy.writeaway.ui.fragment.PlanningFragment
-import com.work.lazxy.writeaway.utils.FileUtils
+import com.work.lazxy.writeaway.utils.FileProviderUtil
 import com.work.lazxy.writeaway.utils.PermissionUtils
 
 import org.greenrobot.eventbus.EventBus
@@ -157,15 +156,7 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
     }
 
     private fun selectFiles() {
-        LFilePicker().withActivity(this)
-                .withStartPath(FileUtils.DEFAULT_COMPRESS_FOLDER)
-                .withChooseMode(true)
-                .withMultiMode(true)
-                .withFileFilter(arrayOf(FileUtils.TYPE_TEXT, FileUtils.TYPE_ZIP))
-                .withRequestCode(Constant.Common.REQUEST_CODE_IMPORT_NOTE)
-                .withTheme(R.style.FilePickerTheme)
-                .withTitle("选择文本/压缩包")
-                .start()
+        FileProviderUtil.startForPickFile(this)
     }
 
     override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
@@ -211,8 +202,24 @@ class MainActivity : BaseFrameActivity<MainPresenter, MainModel>(), MainContract
                     EventBus.getDefault().post(EventChangeNote(true, data?.getSerializableExtra(Constant.Extra.EXTRA_NOTE) as NoteEntity))
                 Constant.Common.REQUEST_CODE_IMPORT_NOTE -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
+                    if(data == null){
+                        return
+                    }
+                    val uriList = arrayListOf<Uri>()
+                    val singleUri: Uri? = data.data
+                    if(singleUri != null){
+                        uriList.add(singleUri)
+                    }else{
+                        if(data.clipData == null){
+                            return
+                        }
+                        for(i in 0 until data.clipData!!.itemCount){
+                            uriList.add(data.clipData!!.getItemAt(i).uri)
+                        }
+                    }
                     val importIntent = Intent(this, ImportNoteService::class.java)
-                    importIntent.putExtra(Constant.Extra.EXTRA_IMPORT_PATH, data?.getStringArrayListExtra(ExtraConsts.EXTRA_FILE_PATHS))
+
+                    importIntent.putExtra(Constant.Extra.EXTRA_IMPORT_PATH, uriList)
                     startService(importIntent)
                 }
             }

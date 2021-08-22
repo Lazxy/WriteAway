@@ -1,8 +1,9 @@
 package com.work.lazxy.writeaway.utils;
 
 
-import android.os.Environment;
 import android.text.TextUtils;
+
+import com.work.lazxy.writeaway.WriteAway;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -19,12 +20,13 @@ import static com.work.lazxy.writeaway.ui.filter.LineBreakInputFilter.INDENT;
  */
 
 public class FileUtils {
-    public static final String DEFAULT_COMPRESS_FOLDER = Environment.getExternalStorageDirectory().getPath() + "/WriteAway/output/";
-    public static final String DEFAULT_TEMP_FOLDER = Environment.getExternalStorageDirectory().getPath() + "/WriteAway/temp/";
+    public static final String DEFAULT_COMPRESS_FOLDER = WriteAway.appContext.getExternalFilesDir(null).getPath() + "/export/";
+    public static final String DEFAULT_TEMP_FOLDER = WriteAway.appContext.getExternalCacheDir().getPath();
     public static final String TYPE_TEXT = ".txt";
     public static final String TYPE_ZIP = ".zip";
+
     public static String createFileWithTime(String rootPath) {
-        return rootPath + System.currentTimeMillis()+TYPE_TEXT;
+        return rootPath + System.currentTimeMillis() + TYPE_TEXT;
     }
 
     public static File createDefaultCompressFile(){
@@ -39,7 +41,6 @@ public class FileUtils {
     public static String readTextFormFile(String filePath) throws IOException {
         File file = new File(filePath);
         if (!file.exists()) {
-//            file.createNewFile();
             return INDENT;
         }
         BufferedReader reader = null;
@@ -50,24 +51,26 @@ public class FileUtils {
             while ((line = reader.readLine()) != null) {
                 buffer.append(line).append("\n");
             }
-            if(TextUtils.isEmpty(buffer)){
+            if (TextUtils.isEmpty(buffer)) {
                 return "";
             }
-            return buffer.delete(buffer.length()-1,buffer.length()).toString();//这里要除去最后一个换行符
+            //这里要除去最后一个换行符
+            return buffer.delete(buffer.length() - 1, buffer.length()).toString();
         } finally {
-            if (reader != null)
+            if (reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
         }
     }
 
     public static boolean writeTextToFile(String filePath, String content) throws IOException {
         File file = new File(filePath);
         if (!file.exists()) {
-            if(!file.getParentFile().exists()){
+            if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
             file.createNewFile();
@@ -92,10 +95,10 @@ public class FileUtils {
         return true;
     }
 
-    public static void deleteFolderWithFiles(File file){
-        if(file.exists()){
-            if(file.isDirectory()){
-                for(File childFilePath: file.listFiles()){
+    public static void deleteFolderWithFiles(File file) {
+        if (file.exists()) {
+            if (file.isDirectory()) {
+                for (File childFilePath : file.listFiles()) {
                     deleteFolderWithFiles(childFilePath);
                 }
             }

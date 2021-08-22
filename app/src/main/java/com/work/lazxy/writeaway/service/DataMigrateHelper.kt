@@ -49,13 +49,13 @@ object DataMigrateHelper {
      * @return 一个存放着标题与修改时间的数组，第一个元素为标题，第二个元素为修改时间
      */
     @JvmStatic
-    fun getMigrateFileInfo(filePath: String): Array<String?> {
+    fun getMigrateFileInfo(filePath: String): Array<String> {
         var filePath = filePath
         if (filePath.endsWith(FileUtils.TYPE_TEXT)) {
             //去除.txt后缀
             filePath = filePath.substring(0, filePath.length - FileUtils.TYPE_TEXT.length)
         }
-        val info = arrayOfNulls<String>(2)
+        val info = arrayOf("","")
         if (!TextUtils.isEmpty(filePath)) {
             var fileName = ""
             val fileNameParts = filePath.split("/".toRegex()).toTypedArray()

@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.text.TextUtils
 import android.widget.Toast
 
@@ -14,12 +15,17 @@ import com.work.lazxy.writeaway.db.NoteDataHandler
 import com.work.lazxy.writeaway.event.EventChangeNote
 import com.work.lazxy.writeaway.event.EventImportComplete
 import com.work.lazxy.writeaway.ui.activity.MainActivity
+import com.work.lazxy.writeaway.utils.FileProviderUtil
 import com.work.lazxy.writeaway.utils.FileUtils
 import com.work.lazxy.writeaway.utils.StringUtils
 import com.work.lazxy.writeaway.utils.ZipUtils
 import org.greenrobot.eventbus.EventBus
+import java.io.BufferedReader
 
 import java.io.File
+import java.io.IOException
+import java.io.InputStreamReader
+import kotlin.jvm.Throws
 
 /**
  * Created by Lazxy on 2018/7/22.
@@ -27,7 +33,7 @@ import java.io.File
 class ImportNoteService : BaseForegroundService<EventImportComplete>() {
     private val IMPORT_NOTIFICATION_ID = 0x20
 
-    private lateinit var mFilePaths: MutableList<String>
+    private lateinit var mFileUris: ArrayList<Uri>
 
     override fun onCreate() {
         super.onCreate()
@@ -38,9 +44,9 @@ class ImportNoteService : BaseForegroundService<EventImportComplete>() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        mFilePaths = intent.getStringArrayListExtra(Constant.Extra.EXTRA_IMPORT_PATH)
+        mFileUris = intent.getParcelableArrayListExtra(Constant.Extra.EXTRA_IMPORT_PATH)!!
         /*这里开始进行导入文件的异步操作*/
-        if (mTaskRunnable != null && mFilePaths.isNotEmpty()) {
+        if (mFileUris.isNotEmpty()) {
             startForeground(IMPORT_NOTIFICATION_ID, mBuilder.build())
             Thread(mTaskRunnable).start()
         }
@@ -80,17 +86,18 @@ class ImportNoteService : BaseForegroundService<EventImportComplete>() {
 
     private val mTaskRunnable = Runnable {
         var isAllComplete = true
-        mFilePaths.forEach { path ->
-            if (path.endsWith(FileUtils.TYPE_TEXT)) {
-                if (!saveFileToNote(path)) {
+        mFileUris.forEach { uri ->
+            if (FileProviderUtil.MIME_TEXT == contentResolver.getType(uri)) {
+                if (!saveFileToNote(uri)) {
                     isAllComplete = false
                 }
-            } else if (path.endsWith(FileUtils.TYPE_ZIP)) {
-                val zipFile = File(path)
-                if (zipFile.exists()) {
+            } else if (FileProviderUtil.MIME_ZIP == contentResolver.getType(uri)) {
+                val zipFile = FileProviderUtil.copyFileToCache(applicationContext, uri)
+                if (zipFile?.exists() == true) {
                     val paths = ZipUtils.upZipFile(zipFile, FileUtils.DEFAULT_TEMP_FOLDER)
                     if (paths.size > 0) {
                         paths.forEach {
+                            //这里已经是可访问的文件路径了 但是为了统一处理 还是把它转成uri
                             if (!saveFileToNote(it)) {
                                 isAllComplete = false
                             } else {
@@ -99,6 +106,8 @@ class ImportNoteService : BaseForegroundService<EventImportComplete>() {
                         }
                     }
                 }
+            } else {
+                isAllComplete = false
             }
         }
         val msg = mActionDoneHandler.obtainMessage()
@@ -109,25 +118,45 @@ class ImportNoteService : BaseForegroundService<EventImportComplete>() {
         mActionDoneHandler.sendMessage(msg)
     }
 
-    private fun saveFileToNote(path: String): Boolean {
-        if (path.endsWith(FileUtils.TYPE_TEXT)) {
-            //直接解析文本文件，将其存入数据库
-            if (File(path).exists()) {
-                val content = FileUtils.readTextFormFile(path)
-                val info = DataMigrateHelper.getMigrateFileInfo(path)
-                val newPath = FileUtils.createFileWithTime(ConfigManager.fileSavedPath)
-                val lastEditTime = if (TextUtils.isEmpty(info[1])) {
-                    System.currentTimeMillis()
-                } else {
-                    info[1]!!.toLong()
-                }
-                NoteDataHandler.instance.saveData(info[0], newPath,
-                        StringUtils.getPreview(content), lastEditTime)
-                if (content != null) {
-                    return FileUtils.writeTextToFile(newPath, content)
+
+    private fun saveFileToNote(path:String):Boolean{
+        val content = FileUtils.readTextFormFile(path)
+        val info  = DataMigrateHelper.getMigrateFileInfo(path)
+        return saveNote(content,info)
+    }
+
+    private fun saveFileToNote(uri: Uri): Boolean {
+        //直接解析文本文件，将其存入数据库
+        val content = readTextFromUri(uri)
+        val fileName = FileProviderUtil.getFileNameFromUri(applicationContext, uri) ?: return false
+        val info = DataMigrateHelper.getMigrateFileInfo(fileName)
+        return saveNote(content,info)
+    }
+
+    private fun saveNote(content:String,info: Array<String>):Boolean{
+        val newPath = FileUtils.createFileWithTime(ConfigManager.fileSavedPath)
+        val lastEditTime = if (TextUtils.isEmpty(info[1])) {
+            System.currentTimeMillis()
+        } else {
+            info[1]!!.toLong()
+        }
+        NoteDataHandler.instance.saveData(info[0], newPath,
+                StringUtils.getPreview(content), lastEditTime)
+        return FileUtils.writeTextToFile(newPath, content)
+    }
+
+    @Throws(IOException::class)
+    private fun readTextFromUri(uri: Uri): String {
+        val stringBuilder = StringBuilder()
+        contentResolver.openInputStream(uri)?.use { inputStream ->
+            BufferedReader(InputStreamReader(inputStream)).use { reader ->
+                var line: String? = reader.readLine()
+                while (line != null) {
+                    stringBuilder.append(line)
+                    line = reader.readLine()
                 }
             }
         }
-        return true
+        return stringBuilder.toString()
     }
 }

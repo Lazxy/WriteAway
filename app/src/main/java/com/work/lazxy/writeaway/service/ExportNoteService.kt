@@ -14,6 +14,7 @@ import com.work.lazxy.writeaway.event.EventCompressComplete
 import com.work.lazxy.writeaway.service.DataMigrateHelper.clearMigrateCache
 import com.work.lazxy.writeaway.service.DataMigrateHelper.renameFileWithCreateTime
 import com.work.lazxy.writeaway.ui.activity.MainActivity
+import com.work.lazxy.writeaway.utils.FileProviderUtil
 import com.work.lazxy.writeaway.utils.FileUtils
 import com.work.lazxy.writeaway.utils.ZipUtils
 import org.greenrobot.eventbus.EventBus
@@ -84,7 +85,12 @@ class ExportNoteService : BaseForegroundService<EventCompressComplete?>() {
                 return@Runnable
             }
             try {
-                ZipUtils.zipFiles(outputFiles, FileUtils.createDefaultCompressFile()) { progress, file -> EventBus.getDefault().post(EventCompressComplete(progress, sum, true)) }
+                val zipFile = FileUtils.createDefaultCompressFile();
+                ZipUtils.zipFiles(outputFiles, zipFile) {
+                    progress, file ->
+                    EventBus.getDefault().post(EventCompressComplete(progress, sum, true))
+                }
+                FileProviderUtil.moveFileToDownloads(baseContext,zipFile)
             } catch (e: IOException) {
                 e.printStackTrace()
                 EventBus.getDefault().post(EventCompressComplete(false, MIGRATE_ZIP_FAILED))
