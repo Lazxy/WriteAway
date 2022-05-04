@@ -11,18 +11,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import com.work.lazxy.writeaway.R
 import com.work.lazxy.writeaway.WriteAway
-import com.work.lazxy.writeaway.ui.widget.ProgressDialog
-import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.regex.Pattern
-import kotlin.coroutines.Continuation
 
 /**
  *
@@ -198,20 +194,24 @@ class NoteSnapshotGenerator() {
     private fun saveToFile(src: Bitmap): Boolean {
         var isSuccess = false
         var outFile: OutputStream? = null
+        val cachePath = WriteAway.appContext.externalCacheDir?.path
+        val cacheFile = File(cachePath, mConfig.title + "_" + SimpleDateFormat("yyyy:MM:dd:HH:mm:ss")
+                .format(System.currentTimeMillis()) + ".jpg")
         try {
-            val path = mConfig.targetPath
-            outFile = with(File(path, mConfig.title + "_" + SimpleDateFormat("yyyy:MM:dd:HH:mm:ss")
-                    .format(System.currentTimeMillis()) + ".jpg")) {
+            outFile = with(cacheFile) {
                 if (!exists()) createNewFile()
                 FileOutputStream(this.path)
             }
             src.compress(Bitmap.CompressFormat.JPEG, 80, outFile)
-            Log.i("Temp Log", "生成图片完成 地址是${path}")
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
             src.recycle()
             outFile?.close()
+        }
+        val result = FileProviderUtil.moveFileToImages(mContext, "WriteAway/export", cacheFile)
+        if (result != null) {
+            Log.i("Temp Log", "生成图片完成 地址是${result.path}")
             isSuccess = true
         }
         return isSuccess
@@ -246,7 +246,5 @@ class NoteSnapshotGenerator() {
         var texts: ArrayList<CharSequence> = ArrayList()
 
         var title: String = ""
-
-        var targetPath: String? = WriteAway.appContext.externalCacheDir?.path
     }
 }
