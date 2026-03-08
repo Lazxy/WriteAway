@@ -3,7 +3,7 @@ package com.work.lazxy.writeaway.ui.adapter
 import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
-import android.support.v7.widget.PopupMenu
+import androidx.appcompat.widget.PopupMenu
 import android.text.TextUtils
 import android.view.Gravity
 import android.view.View

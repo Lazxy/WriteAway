@@ -2,7 +2,7 @@ package com.work.lazxy.writeaway.mvpframe.concrete.note;
 
 
 import android.graphics.Bitmap;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.work.lazxy.writeaway.entity.NoteEntity;
 import com.work.lazxy.writeaway.mvpframe.base.BaseModel;

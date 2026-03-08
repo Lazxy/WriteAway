@@ -1,8 +1,8 @@
 package com.work.lazxy.writeaway.ui.fragment
 
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.SimpleItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.SimpleItemAnimator
 import android.text.InputFilter
 import android.text.TextUtils
 import android.view.MotionEvent

@@ -7,12 +7,12 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v4.view.ViewPager
+import com.google.android.material.snackbar.Snackbar
+import androidx.viewpager.widget.ViewPager
 import android.view.View
-import android.support.v4.view.GravityCompat
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.ActionBarDrawerToggle
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.appcompat.app.ActionBarDrawerToggle
 import android.view.Menu
 
 import com.work.lazxy.writeaway.R

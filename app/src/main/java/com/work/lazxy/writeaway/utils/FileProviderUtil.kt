@@ -10,7 +10,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.provider.OpenableColumns
-import android.support.v4.content.FileProvider
+import androidx.core.content.FileProvider
 import com.leon.lfilepickerlibrary.LFilePicker
 import com.work.lazxy.writeaway.R
 import com.work.lazxy.writeaway.WriteAway

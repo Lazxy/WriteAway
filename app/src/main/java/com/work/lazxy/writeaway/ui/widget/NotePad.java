@@ -17,7 +17,7 @@ import java.util.Stack;
  * Created by lenovo on 2017/2/2.
  */
 
-public class NotePad extends android.support.v7.widget.AppCompatEditText {
+public class NotePad extends androidx.appcompat.widget.AppCompatEditText {
     private Stack<Action> mStack;
 
     public NotePad(Context context) {
